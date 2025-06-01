@@ -1,35 +1,29 @@
+
 import requests
-import json
 import sys
-import time
+import uuid
 from datetime import datetime
 
 class IllustraDesignAPITester:
-    def __init__(self, base_url):
+    def __init__(self, base_url="https://ae7eb85d-9591-4143-a448-5d11ae9fdf91.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
         self.tests_passed = 0
-        self.admin_credentials = {
-            "email": "admin@illustradesign.com",
-            "password": "DesignStudio@22"
-        }
-        self.test_user_credentials = {
-            "name": f"Test User {int(time.time())}",
-            "email": f"testuser{int(time.time())}@example.com",
-            "password": "TestPassword123!",
-            "phone": "9876543210",
-            "address": "123 Test Street, Test City"
-        }
+        self.admin_token = None
+        self.user_token = None
+        self.test_category_id = None
+        self.test_subcategory_id = None
+        self.test_size_id = None
+        self.test_product_id = None
+        self.test_order_id = None
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, form_data=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None, token=None, files=None):
         """Run a single API test"""
-        url = f"{self.base_url}/api/{endpoint}"
-        
-        if not headers:
-            headers = {'Content-Type': 'application/json'}
-            if self.token:
-                headers['Authorization'] = f'Bearer {self.token}'
+        url = f"{self.base_url}/{endpoint}"
+        headers = {'Content-Type': 'application/json'}
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
@@ -38,10 +32,10 @@ class IllustraDesignAPITester:
             if method == 'GET':
                 response = requests.get(url, headers=headers)
             elif method == 'POST':
-                if form_data:
-                    # For multipart/form-data
-                    headers.pop('Content-Type', None)  # Let requests set the correct Content-Type
-                    response = requests.post(url, data=form_data, headers=headers)
+                if files:
+                    # For file uploads, don't use JSON
+                    headers.pop('Content-Type', None)
+                    response = requests.post(url, data=data, headers=headers, files=files)
                 else:
                     response = requests.post(url, json=data, headers=headers)
             elif method == 'PUT':
@@ -50,21 +44,19 @@ class IllustraDesignAPITester:
                 response = requests.delete(url, headers=headers)
 
             success = response.status_code == expected_status
-            
             if success:
                 self.tests_passed += 1
                 print(f"✅ Passed - Status: {response.status_code}")
                 try:
-                    return success, response.json()
+                    return success, response.json() if response.text else {}
                 except:
                     return success, {}
             else:
                 print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
                 try:
-                    error_data = response.json()
-                    print(f"Error response: {json.dumps(error_data, indent=2)}")
+                    print(f"Response: {response.json() if response.text else 'No content'}")
                 except:
-                    print(f"Response text: {response.text}")
+                    print(f"Response: {response.text}")
                 return False, {}
 
         except Exception as e:
@@ -72,403 +64,359 @@ class IllustraDesignAPITester:
             return False, {}
 
     def test_admin_login(self):
-        """Test admin login"""
+        """Test admin login and get token"""
         success, response = self.run_test(
             "Admin Login",
             "POST",
-            "auth/login",
+            "api/auth/login",
             200,
-            data=self.admin_credentials
+            data={"email": "admin@illustradesign.com", "password": "DesignStudio@22"}
         )
-        if success and 'access_token' in response:
-            self.token = response['access_token']
-            print(f"Admin login successful, got token: {self.token[:10]}...")
+        if success and 'token' in response:
+            self.admin_token = response['token']
+            print(f"✅ Admin login successful, token received")
             return True
         return False
-
-    def test_admin_login_legacy(self):
-        """Test admin login with legacy endpoint"""
-        success, response = self.run_test(
-            "Admin Login (Legacy Endpoint)",
-            "POST",
-            "login",
-            200,
-            data=self.admin_credentials
-        )
-        if success and 'access_token' in response:
-            self.token = response['access_token']
-            print(f"Admin login successful with legacy endpoint, got token: {self.token[:10]}...")
-            return True
-        return False
-
-    def test_user_registration(self):
-        """Test user registration"""
-        success, response = self.run_test(
-            "User Registration",
-            "POST",
-            "auth/register",
-            201,
-            data=self.test_user_credentials
-        )
-        return success
-
-    def test_user_registration_legacy(self):
-        """Test user registration with legacy endpoint"""
-        # Create a new user with different email to avoid conflicts
-        legacy_user = self.test_user_credentials.copy()
-        legacy_user["email"] = f"legacy_user{int(time.time())}@example.com"
-        
-        success, response = self.run_test(
-            "User Registration (Legacy Endpoint)",
-            "POST",
-            "register",
-            201,
-            data=legacy_user
-        )
-        return success
 
     def test_user_login(self):
-        """Test user login"""
+        """Test regular user login"""
+        # First register a test user
+        test_email = f"test_user_{datetime.now().strftime('%H%M%S')}@example.com"
+        success, response = self.run_test(
+            "Register Test User",
+            "POST",
+            "api/auth/register",
+            201,
+            data={
+                "name": "Test User",
+                "email": test_email,
+                "password": "TestPass123!"
+            }
+        )
+        
+        if not success:
+            return False
+            
+        # Now login with the test user
         success, response = self.run_test(
             "User Login",
             "POST",
-            "auth/login",
+            "api/auth/login",
             200,
-            data={
-                "email": self.test_user_credentials["email"],
-                "password": self.test_user_credentials["password"]
-            }
+            data={"email": test_email, "password": "TestPass123!"}
         )
-        if success and 'access_token' in response:
-            self.token = response['access_token']
-            print(f"User login successful, got token: {self.token[:10]}...")
+        
+        if success and 'token' in response:
+            self.user_token = response['token']
+            print(f"✅ User login successful, token received")
             return True
         return False
 
-    def test_get_user_profile(self):
-        """Test getting user profile"""
-        success, response = self.run_test(
-            "Get User Profile",
-            "GET",
-            "me",
-            200
-        )
-        if success:
-            print(f"Retrieved user profile for: {response.get('name', 'Unknown')}")
-        return success
-
-    def test_get_categories(self):
-        """Test getting categories"""
-        success, response = self.run_test(
-            "Get Categories",
-            "GET",
-            "categories",
-            200
-        )
-        if success:
-            print(f"Retrieved {len(response)} categories")
-            if len(response) > 0:
-                self.category_id = response[0]['id']
-                print(f"Saved category ID: {self.category_id}")
-        return success
-
-    def test_get_subcategories(self):
-        """Test getting subcategories"""
-        if not hasattr(self, 'category_id'):
-            print("❌ No category ID available for testing subcategories")
+    def test_admin_dashboard(self):
+        """Test admin dashboard stats"""
+        if not self.admin_token:
+            print("❌ Admin token not available, skipping test")
             return False
             
         success, response = self.run_test(
-            "Get Subcategories",
+            "Admin Dashboard Stats",
             "GET",
-            f"subcategories?category_id={self.category_id}",
-            200
+            "api/admin/dashboard",
+            200,
+            token=self.admin_token
         )
+        
         if success:
-            print(f"Retrieved {len(response)} subcategories")
-        return success
+            print(f"✅ Dashboard stats: {response}")
+            return True
+        return False
 
-    def test_get_sizes(self):
-        """Test getting sizes"""
-        if not hasattr(self, 'category_id'):
-            print("❌ No category ID available for testing sizes")
+    def test_category_management(self):
+        """Test category management"""
+        if not self.admin_token:
+            print("❌ Admin token not available, skipping test")
             return False
             
+        # Create a new category
+        category_name = f"Test Category {uuid.uuid4().hex[:8]}"
         success, response = self.run_test(
-            "Get Sizes",
-            "GET",
-            f"sizes?category_id={self.category_id}",
-            200
-        )
-        if success:
-            print(f"Retrieved {len(response)} sizes")
-        return success
-
-    def test_get_products(self):
-        """Test getting products"""
-        success, response = self.run_test(
-            "Get Products",
-            "GET",
-            "products",
-            200
-        )
-        if success:
-            print(f"Retrieved {len(response)} products")
-            if len(response) > 0:
-                self.product_id = response[0]['id']
-                print(f"Saved product ID: {self.product_id}")
-        return success
-
-    def test_get_product_by_id(self):
-        """Test getting a product by ID"""
-        if not hasattr(self, 'product_id'):
-            print("❌ No product ID available for testing")
-            return False
-            
-        success, response = self.run_test(
-            "Get Product by ID",
-            "GET",
-            f"products/{self.product_id}",
-            200
-        )
-        return success
-
-    def test_add_to_cart_json(self):
-        """Test adding a product to cart using JSON"""
-        if not hasattr(self, 'product_id'):
-            print("❌ No product ID available for testing")
-            return False
-            
-        success, response = self.run_test(
-            "Add to Cart (JSON)",
+            "Create Category",
             "POST",
-            "cart",
+            "api/categories",
+            201,
+            data={"name": category_name},
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        self.test_category_id = response.get("id")
+        print(f"✅ Created category with ID: {self.test_category_id}")
+        
+        # Create a subcategory
+        subcategory_name = f"Test Subcategory {uuid.uuid4().hex[:8]}"
+        success, response = self.run_test(
+            "Create Subcategory",
+            "POST",
+            "api/subcategories",
             201,
             data={
-                "product_id": self.product_id,
-                "quantity": 1,
-                "size": "M"
-            }
+                "name": subcategory_name,
+                "category_id": self.test_category_id
+            },
+            token=self.admin_token
         )
-        return success
-
-    def test_add_to_cart_form(self):
-        """Test adding a product to cart using form data"""
-        if not hasattr(self, 'product_id'):
-            print("❌ No product ID available for testing")
+        
+        if not success:
             return False
             
-        form_data = {
-            "product_id": self.product_id,
-            "quantity": "1",
-            "size": "M"
-        }
+        self.test_subcategory_id = response.get("id")
+        print(f"✅ Created subcategory with ID: {self.test_subcategory_id}")
         
+        # Create a size
+        size_name = f"Test Size {uuid.uuid4().hex[:8]}"
         success, response = self.run_test(
-            "Add to Cart (Form Data)",
+            "Create Size",
             "POST",
-            "cart/items",
+            "api/sizes",
             201,
-            form_data=form_data
+            data={
+                "name": size_name,
+                "category_id": self.test_category_id
+            },
+            token=self.admin_token
         )
-        return success
-
-    def test_get_cart(self):
-        """Test getting cart contents"""
-        success, response = self.run_test(
-            "Get Cart",
-            "GET",
-            "cart",
-            200
-        )
-        if success:
-            print(f"Cart has {len(response)} items")
-            if len(response) > 0:
-                self.cart_item_id = response[0]['id']
-                print(f"Saved cart item ID: {self.cart_item_id}")
-        return success
-
-    def test_update_cart_item(self):
-        """Test updating cart item quantity"""
-        if not hasattr(self, 'cart_item_id'):
-            print("❌ No cart item ID available for testing")
-            return False
-            
-        success, response = self.run_test(
-            "Update Cart Item",
-            "PUT",
-            f"cart/{self.cart_item_id}",
-            200,
-            data={"quantity": 2}
-        )
-        return success
-
-    def test_remove_from_cart(self):
-        """Test removing item from cart"""
-        if not hasattr(self, 'cart_item_id'):
-            print("❌ No cart item ID available for testing")
-            return False
-            
-        success, response = self.run_test(
-            "Remove from Cart",
-            "DELETE",
-            f"cart/{self.cart_item_id}",
-            200
-        )
-        return success
-
-    def test_hero_images(self):
-        """Test getting hero images"""
-        success, response = self.run_test(
-            "Get Hero Images",
-            "GET",
-            "hero-images",
-            200
-        )
-        if success:
-            print(f"Retrieved {len(response)} hero images")
-        return success
-
-    def test_search_products(self):
-        """Test searching products"""
-        success, response = self.run_test(
-            "Search Products",
-            "GET",
-            "products?search=custom",
-            200
-        )
-        if success:
-            print(f"Search returned {len(response)} products")
-        return success
-
-    def test_filter_by_category(self):
-        """Test filtering products by category"""
-        if not hasattr(self, 'category_id'):
-            print("❌ No category ID available for testing")
-            return False
-            
-        success, response = self.run_test(
-            "Filter Products by Category",
-            "GET",
-            f"products?category_id={self.category_id}",
-            200
-        )
-        if success:
-            print(f"Category filter returned {len(response)} products")
-        return success
-
-    def test_create_order(self):
-        """Test creating an order"""
-        # First add an item to cart
-        self.test_add_to_cart_form()
         
+        if not success:
+            return False
+            
+        self.test_size_id = response.get("id")
+        print(f"✅ Created size with ID: {self.test_size_id}")
+        
+        return True
+
+    def test_product_management(self):
+        """Test product management"""
+        if not self.admin_token or not self.test_category_id or not self.test_subcategory_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        # Create a new product
+        product_name = f"Test Product {uuid.uuid4().hex[:8]}"
+        success, response = self.run_test(
+            "Create Product",
+            "POST",
+            "api/products",
+            201,
+            data={
+                "title": product_name,
+                "description": "This is a test product",
+                "price": 29.99,
+                "quantity": 100,
+                "category_id": self.test_category_id,
+                "subcategory_id": self.test_subcategory_id,
+                "sizes": ["S", "M", "L"],
+                "customizable": True,
+                "images": []
+            },
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        self.test_product_id = response.get("id")
+        print(f"✅ Created product with ID: {self.test_product_id}")
+        
+        # Update the product
+        success, response = self.run_test(
+            "Update Product",
+            "PUT",
+            f"api/products/{self.test_product_id}",
+            200,
+            data={
+                "title": product_name + " (Updated)",
+                "description": "This is an updated test product",
+                "price": 39.99,
+                "quantity": 50,
+                "category_id": self.test_category_id,
+                "subcategory_id": self.test_subcategory_id,
+                "sizes": ["S", "M", "L", "XL"],
+                "customizable": True,
+                "images": []
+            },
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        print(f"✅ Updated product successfully")
+        
+        # Get the product
+        success, response = self.run_test(
+            "Get Product",
+            "GET",
+            f"api/products/{self.test_product_id}",
+            200,
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        print(f"✅ Retrieved product successfully")
+        
+        return True
+
+    def test_order_management(self):
+        """Test order management"""
+        if not self.admin_token or not self.test_product_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        # Create a test order (first we need to create a cart)
         success, response = self.run_test(
             "Create Order",
             "POST",
-            "orders",
-            200,
+            "api/orders",
+            201,
             data={
-                "billing_address": "123 Test Street, Test City",
-                "phone": "9876543210"
-            }
+                "items": [
+                    {
+                        "product_id": self.test_product_id,
+                        "quantity": 2,
+                        "size": "M",
+                        "customization": "Test customization"
+                    }
+                ],
+                "shipping_address": {
+                    "name": "Test User",
+                    "street": "123 Test St",
+                    "city": "Test City",
+                    "state": "TS",
+                    "zip": "12345",
+                    "country": "Test Country"
+                },
+                "payment_method": "Credit Card"
+            },
+            token=self.admin_token
         )
-        if success:
-            print(f"Order created with ID: {response.get('id', 'Unknown')}")
-            self.order_id = response.get('id')
-        return success
-
-    def test_get_orders(self):
-        """Test getting orders"""
-        success, response = self.run_test(
-            "Get Orders",
-            "GET",
-            "orders",
-            200
-        )
-        if success:
-            print(f"Retrieved {len(response)} orders")
-        return success
-
-    def test_dashboard_stats(self):
-        """Test getting dashboard stats (admin only)"""
-        # Make sure we're using admin token
-        self.test_admin_login()
         
+        if not success:
+            return False
+            
+        self.test_order_id = response.get("id")
+        print(f"✅ Created order with ID: {self.test_order_id}")
+        
+        # Update order status
         success, response = self.run_test(
-            "Get Dashboard Stats",
-            "GET",
-            "dashboard/stats",
-            200
+            "Update Order Status",
+            "PUT",
+            f"api/orders/{self.test_order_id}/status",
+            200,
+            data={"status": "dispatched"},
+            token=self.admin_token
         )
-        if success:
-            print(f"Retrieved dashboard stats: {json.dumps(response, indent=2)}")
-        return success
+        
+        if not success:
+            return False
+            
+        print(f"✅ Updated order status successfully")
+        
+        return True
 
-    def test_initialize_demo_data(self):
-        """Test initializing demo data"""
-        success, response = self.run_test(
-            "Initialize Demo Data",
-            "POST",
-            "initialize-demo-data",
-            200
+    def test_regular_user_admin_access(self):
+        """Test that regular users cannot access admin features"""
+        if not self.user_token:
+            print("❌ User token not available, skipping test")
+            return False
+            
+        # Try to access admin dashboard
+        success, _ = self.run_test(
+            "User Access to Admin Dashboard",
+            "GET",
+            "api/admin/dashboard",
+            403,  # Expecting forbidden
+            token=self.user_token
         )
-        return success
+        
+        if success:
+            print("✅ Regular user correctly denied access to admin dashboard")
+        else:
+            print("❌ Regular user was not properly restricted from admin dashboard")
+            return False
+            
+        # Try to create a category
+        success, _ = self.run_test(
+            "User Access to Category Creation",
+            "POST",
+            "api/categories",
+            403,  # Expecting forbidden
+            data={"name": "Unauthorized Category"},
+            token=self.user_token
+        )
+        
+        if success:
+            print("✅ Regular user correctly denied access to category creation")
+        else:
+            print("❌ Regular user was not properly restricted from category creation")
+            return False
+            
+        return True
+
+    def test_product_deletion(self):
+        """Test product deletion"""
+        if not self.admin_token or not self.test_product_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        success, _ = self.run_test(
+            "Delete Product",
+            "DELETE",
+            f"api/products/{self.test_product_id}",
+            200,
+            token=self.admin_token
+        )
+        
+        if success:
+            print(f"✅ Deleted product successfully")
+            return True
+        return False
 
 def main():
-    # Get the backend URL from the environment
-    backend_url = "https://ae7eb85d-9591-4143-a448-5d11ae9fdf91.preview.emergentagent.com"
+    # Setup
+    tester = IllustraDesignAPITester()
     
-    print(f"Testing IllustraDesign eCommerce API at: {backend_url}")
+    # Run tests
+    if not tester.test_admin_login():
+        print("❌ Admin login failed, stopping tests")
+        return 1
+        
+    if not tester.test_user_login():
+        print("❌ User login failed, continuing with other tests")
     
-    # Initialize the tester
-    tester = IllustraDesignAPITester(backend_url)
+    tester.test_admin_dashboard()
     
-    # Run the tests
-    tests = [
-        # Authentication tests
-        tester.test_admin_login,
-        tester.test_admin_login_legacy,
-        tester.test_user_registration,
-        tester.test_user_registration_legacy,
-        tester.test_user_login,
-        tester.test_get_user_profile,
-        
-        # Product and category tests
-        tester.test_get_categories,
-        tester.test_get_subcategories,
-        tester.test_get_sizes,
-        tester.test_get_products,
-        tester.test_get_product_by_id,
-        tester.test_search_products,
-        tester.test_filter_by_category,
-        
-        # Cart tests
-        tester.test_add_to_cart_json,
-        tester.test_add_to_cart_form,
-        tester.test_get_cart,
-        tester.test_update_cart_item,
-        tester.test_remove_from_cart,
-        
-        # Order tests
-        tester.test_create_order,
-        tester.test_get_orders,
-        
-        # Other tests
-        tester.test_hero_images,
-        tester.test_dashboard_stats,
-        tester.test_initialize_demo_data,
-    ]
+    if not tester.test_category_management():
+        print("❌ Category management failed, continuing with other tests")
     
-    # Run all tests
-    for test_func in tests:
-        test_func()
+    if not tester.test_product_management():
+        print("❌ Product management failed, continuing with other tests")
+    
+    if not tester.test_order_management():
+        print("❌ Order management failed, continuing with other tests")
+    
+    tester.test_regular_user_admin_access()
+    
+    if tester.test_product_id:
+        tester.test_product_deletion()
     
     # Print results
-    print("\n" + "="*50)
-    print(f"📊 Tests passed: {tester.tests_passed}/{tester.tests_run}")
-    print("="*50)
-    
+    print(f"\n📊 Tests passed: {tester.tests_passed}/{tester.tests_run}")
     return 0 if tester.tests_passed == tester.tests_run else 1
 
 if __name__ == "__main__":
     sys.exit(main())
+      
