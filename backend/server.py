@@ -190,7 +190,7 @@ class HeroImage(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Authentication endpoints
-@api_router.post("/register")
+@api_router.post("/auth/register", status_code=201)
 async def register(user: UserCreate):
     # Check if user exists
     existing_user = await db.users.find_one({"email": user.email})
@@ -213,7 +213,7 @@ async def register(user: UserCreate):
     
     return {"access_token": access_token, "token_type": "bearer", "user": user_obj}
 
-@api_router.post("/login")
+@api_router.post("/auth/login")
 async def login(user_data: UserLogin):
     user = await db.users.find_one({"email": user_data.email})
     if not user or not verify_password(user_data.password, user["hashed_password"]):
@@ -223,6 +223,15 @@ async def login(user_data: UserLogin):
     user_obj = User(**{k: v for k, v in user.items() if k != "hashed_password"})
     
     return {"access_token": access_token, "token_type": "bearer", "user": user_obj}
+
+# Backward compatibility
+@api_router.post("/register", status_code=201)
+async def register_legacy(user: UserCreate):
+    return await register(user)
+
+@api_router.post("/login")
+async def login_legacy(user_data: UserLogin):
+    return await login(user_data)
 
 @api_router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
