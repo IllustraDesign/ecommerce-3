@@ -1759,8 +1759,12 @@ const AdminProducts = () => {
     </div>
   );
 };
+// Admin Dashboard Component
+const AdminDashboard = () => {
   const { user } = useAppContext();
-  const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
