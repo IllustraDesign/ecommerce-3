@@ -121,17 +121,22 @@ const AppProvider = ({ children }) => {
         return;
       }
 
-      await axios.post(`${API}/cart`, {
-        product_id: productId,
-        quantity,
-        size
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      const formData = new FormData();
+      formData.append('product_id', productId);
+      formData.append('quantity', quantity);
+      if (size) formData.append('size', size);
+
+      await axios.post(`${API}/cart/items`, formData, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       await fetchCart();
       toast.success('Item added to cart!');
     } catch (error) {
+      console.error('Add to cart error:', error);
       toast.error('Failed to add item to cart');
     }
   };
