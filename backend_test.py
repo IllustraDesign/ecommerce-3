@@ -22,7 +22,7 @@ class IllustraDesignAPITester:
             "address": "123 Test Street, Test City"
         }
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, form_data=None):
         """Run a single API test"""
         url = f"{self.base_url}/api/{endpoint}"
         
@@ -38,7 +38,12 @@ class IllustraDesignAPITester:
             if method == 'GET':
                 response = requests.get(url, headers=headers)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers)
+                if form_data:
+                    # For multipart/form-data
+                    headers.pop('Content-Type', None)  # Let requests set the correct Content-Type
+                    response = requests.post(url, data=form_data, headers=headers)
+                else:
+                    response = requests.post(url, json=data, headers=headers)
             elif method == 'PUT':
                 response = requests.put(url, json=data, headers=headers)
             elif method == 'DELETE':
@@ -81,6 +86,21 @@ class IllustraDesignAPITester:
             return True
         return False
 
+    def test_admin_login_legacy(self):
+        """Test admin login with legacy endpoint"""
+        success, response = self.run_test(
+            "Admin Login (Legacy Endpoint)",
+            "POST",
+            "login",
+            200,
+            data=self.admin_credentials
+        )
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            print(f"Admin login successful with legacy endpoint, got token: {self.token[:10]}...")
+            return True
+        return False
+
     def test_user_registration(self):
         """Test user registration"""
         success, response = self.run_test(
@@ -89,6 +109,21 @@ class IllustraDesignAPITester:
             "auth/register",
             201,
             data=self.test_user_credentials
+        )
+        return success
+
+    def test_user_registration_legacy(self):
+        """Test user registration with legacy endpoint"""
+        # Create a new user with different email to avoid conflicts
+        legacy_user = self.test_user_credentials.copy()
+        legacy_user["email"] = f"legacy_user{int(time.time())}@example.com"
+        
+        success, response = self.run_test(
+            "User Registration (Legacy Endpoint)",
+            "POST",
+            "register",
+            201,
+            data=legacy_user
         )
         return success
 
@@ -110,6 +145,18 @@ class IllustraDesignAPITester:
             return True
         return False
 
+    def test_get_user_profile(self):
+        """Test getting user profile"""
+        success, response = self.run_test(
+            "Get User Profile",
+            "GET",
+            "me",
+            200
+        )
+        if success:
+            print(f"Retrieved user profile for: {response.get('name', 'Unknown')}")
+        return success
+
     def test_get_categories(self):
         """Test getting categories"""
         success, response = self.run_test(
@@ -120,6 +167,41 @@ class IllustraDesignAPITester:
         )
         if success:
             print(f"Retrieved {len(response)} categories")
+            if len(response) > 0:
+                self.category_id = response[0]['id']
+                print(f"Saved category ID: {self.category_id}")
+        return success
+
+    def test_get_subcategories(self):
+        """Test getting subcategories"""
+        if not hasattr(self, 'category_id'):
+            print("❌ No category ID available for testing subcategories")
+            return False
+            
+        success, response = self.run_test(
+            "Get Subcategories",
+            "GET",
+            f"subcategories?category_id={self.category_id}",
+            200
+        )
+        if success:
+            print(f"Retrieved {len(response)} subcategories")
+        return success
+
+    def test_get_sizes(self):
+        """Test getting sizes"""
+        if not hasattr(self, 'category_id'):
+            print("❌ No category ID available for testing sizes")
+            return False
+            
+        success, response = self.run_test(
+            "Get Sizes",
+            "GET",
+            f"sizes?category_id={self.category_id}",
+            200
+        )
+        if success:
+            print(f"Retrieved {len(response)} sizes")
         return success
 
     def test_get_products(self):
@@ -151,22 +233,43 @@ class IllustraDesignAPITester:
         )
         return success
 
-    def test_add_to_cart(self):
-        """Test adding a product to cart"""
+    def test_add_to_cart_json(self):
+        """Test adding a product to cart using JSON"""
         if not hasattr(self, 'product_id'):
             print("❌ No product ID available for testing")
             return False
             
         success, response = self.run_test(
-            "Add to Cart",
+            "Add to Cart (JSON)",
             "POST",
-            "cart/items",
+            "cart",
             201,
             data={
                 "product_id": self.product_id,
                 "quantity": 1,
                 "size": "M"
             }
+        )
+        return success
+
+    def test_add_to_cart_form(self):
+        """Test adding a product to cart using form data"""
+        if not hasattr(self, 'product_id'):
+            print("❌ No product ID available for testing")
+            return False
+            
+        form_data = {
+            "product_id": self.product_id,
+            "quantity": "1",
+            "size": "M"
+        }
+        
+        success, response = self.run_test(
+            "Add to Cart (Form Data)",
+            "POST",
+            "cart/items",
+            201,
+            form_data=form_data
         )
         return success
 
@@ -179,7 +282,39 @@ class IllustraDesignAPITester:
             200
         )
         if success:
-            print(f"Cart has {len(response.get('items', []))} items")
+            print(f"Cart has {len(response)} items")
+            if len(response) > 0:
+                self.cart_item_id = response[0]['id']
+                print(f"Saved cart item ID: {self.cart_item_id}")
+        return success
+
+    def test_update_cart_item(self):
+        """Test updating cart item quantity"""
+        if not hasattr(self, 'cart_item_id'):
+            print("❌ No cart item ID available for testing")
+            return False
+            
+        success, response = self.run_test(
+            "Update Cart Item",
+            "PUT",
+            f"cart/{self.cart_item_id}",
+            200,
+            data={"quantity": 2}
+        )
+        return success
+
+    def test_remove_from_cart(self):
+        """Test removing item from cart"""
+        if not hasattr(self, 'cart_item_id'):
+            print("❌ No cart item ID available for testing")
+            return False
+            
+        success, response = self.run_test(
+            "Remove from Cart",
+            "DELETE",
+            f"cart/{self.cart_item_id}",
+            200
+        )
         return success
 
     def test_hero_images(self):
@@ -208,31 +343,75 @@ class IllustraDesignAPITester:
 
     def test_filter_by_category(self):
         """Test filtering products by category"""
-        # First get categories
-        success, categories = self.run_test(
-            "Get Categories for Filter Test",
-            "GET",
-            "categories",
-            200
-        )
-        
-        if not success or not categories:
-            return False
-            
-        category_id = categories[0]['id'] if categories else None
-        
-        if not category_id:
+        if not hasattr(self, 'category_id'):
             print("❌ No category ID available for testing")
             return False
             
         success, response = self.run_test(
             "Filter Products by Category",
             "GET",
-            f"products?category_id={category_id}",
+            f"products?category_id={self.category_id}",
             200
         )
         if success:
             print(f"Category filter returned {len(response)} products")
+        return success
+
+    def test_create_order(self):
+        """Test creating an order"""
+        # First add an item to cart
+        self.test_add_to_cart_form()
+        
+        success, response = self.run_test(
+            "Create Order",
+            "POST",
+            "orders",
+            200,
+            data={
+                "billing_address": "123 Test Street, Test City",
+                "phone": "9876543210"
+            }
+        )
+        if success:
+            print(f"Order created with ID: {response.get('id', 'Unknown')}")
+            self.order_id = response.get('id')
+        return success
+
+    def test_get_orders(self):
+        """Test getting orders"""
+        success, response = self.run_test(
+            "Get Orders",
+            "GET",
+            "orders",
+            200
+        )
+        if success:
+            print(f"Retrieved {len(response)} orders")
+        return success
+
+    def test_dashboard_stats(self):
+        """Test getting dashboard stats (admin only)"""
+        # Make sure we're using admin token
+        self.test_admin_login()
+        
+        success, response = self.run_test(
+            "Get Dashboard Stats",
+            "GET",
+            "dashboard/stats",
+            200
+        )
+        if success:
+            print(f"Retrieved dashboard stats: {json.dumps(response, indent=2)}")
+        return success
+
+    def test_initialize_demo_data(self):
+        """Test initializing demo data"""
+        success, response = self.run_test(
+            "Initialize Demo Data",
+            "POST",
+            "initialize-demo-data",
+            200
+        )
         return success
 
 def main():
@@ -248,22 +427,36 @@ def main():
     tests = [
         # Authentication tests
         tester.test_admin_login,
+        tester.test_admin_login_legacy,
         tester.test_user_registration,
+        tester.test_user_registration_legacy,
         tester.test_user_login,
+        tester.test_get_user_profile,
         
         # Product and category tests
         tester.test_get_categories,
+        tester.test_get_subcategories,
+        tester.test_get_sizes,
         tester.test_get_products,
         tester.test_get_product_by_id,
         tester.test_search_products,
         tester.test_filter_by_category,
         
         # Cart tests
-        tester.test_add_to_cart,
+        tester.test_add_to_cart_json,
+        tester.test_add_to_cart_form,
         tester.test_get_cart,
+        tester.test_update_cart_item,
+        tester.test_remove_from_cart,
+        
+        # Order tests
+        tester.test_create_order,
+        tester.test_get_orders,
         
         # Other tests
         tester.test_hero_images,
+        tester.test_dashboard_stats,
+        tester.test_initialize_demo_data,
     ]
     
     # Run all tests
