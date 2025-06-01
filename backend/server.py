@@ -394,7 +394,7 @@ async def get_cart(current_user: dict = Depends(get_current_user)):
     cart_items = await db.cart_items.find({"user_id": current_user["id"]}).to_list(1000)
     return [CartItem(**item) for item in cart_items]
 
-@api_router.post("/cart", response_model=CartItem)
+@api_router.post("/cart", response_model=CartItem, status_code=201)
 async def add_to_cart(item: CartItem, current_user: dict = Depends(get_current_user)):
     item.user_id = current_user["id"]
     
@@ -414,12 +414,65 @@ async def add_to_cart(item: CartItem, current_user: dict = Depends(get_current_u
         await db.cart_items.insert_one(item.dict())
         return item
 
+@api_router.post("/cart/items", response_model=CartItem, status_code=201)
+async def add_to_cart_items(
+    product_id: str = Form(...),
+    quantity: int = Form(1),
+    size: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user)
+):
+    # Create cart item
+    item = CartItem(
+        user_id=current_user["id"],
+        product_id=product_id,
+        quantity=quantity,
+        size=size
+    )
+    
+    # Check if item already exists
+    existing_item = await db.cart_items.find_one({
+        "user_id": current_user["id"],
+        "product_id": product_id,
+        "size": size
+    })
+    
+    if existing_item:
+        # Update quantity
+        existing_item["quantity"] += quantity
+        await db.cart_items.replace_one({"id": existing_item["id"]}, existing_item)
+        return CartItem(**existing_item)
+    else:
+        await db.cart_items.insert_one(item.dict())
+        return item
+
 @api_router.delete("/cart/{item_id}")
 async def remove_from_cart(item_id: str, current_user: dict = Depends(get_current_user)):
     result = await db.cart_items.delete_one({"id": item_id, "user_id": current_user["id"]})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cart item not found")
     return {"message": "Item removed from cart"}
+
+@api_router.put("/cart/{item_id}", response_model=CartItem)
+async def update_cart_item(
+    item_id: str, 
+    quantity: int, 
+    current_user: dict = Depends(get_current_user)
+):
+    if quantity <= 0:
+        # Remove item if quantity is 0 or negative
+        await remove_from_cart(item_id, current_user)
+        return {"message": "Item removed from cart"}
+    
+    result = await db.cart_items.update_one(
+        {"id": item_id, "user_id": current_user["id"]}, 
+        {"$set": {"quantity": quantity}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Cart item not found")
+    
+    updated_item = await db.cart_items.find_one({"id": item_id})
+    return CartItem(**updated_item)
 
 # Order endpoints
 @api_router.get("/orders", response_model=List[Order])
