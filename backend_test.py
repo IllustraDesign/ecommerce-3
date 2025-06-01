@@ -72,8 +72,8 @@ class IllustraDesignAPITester:
             200,
             data={"email": "admin@illustradesign.com", "password": "DesignStudio@22"}
         )
-        if success and 'token' in response:
-            self.admin_token = response['token']
+        if success and 'access_token' in response:
+            self.admin_token = response['access_token']
             print(f"✅ Admin login successful, token received")
             return True
         return False
@@ -106,8 +106,8 @@ class IllustraDesignAPITester:
             data={"email": test_email, "password": "TestPass123!"}
         )
         
-        if success and 'token' in response:
-            self.user_token = response['token']
+        if success and 'access_token' in response:
+            self.user_token = response['access_token']
             print(f"✅ User login successful, token received")
             return True
         return False
