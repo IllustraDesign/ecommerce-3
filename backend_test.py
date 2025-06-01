@@ -121,7 +121,7 @@ class IllustraDesignAPITester:
         success, response = self.run_test(
             "Admin Dashboard Stats",
             "GET",
-            "api/admin/dashboard",
+            "api/dashboard/stats",
             200,
             token=self.admin_token
         )
