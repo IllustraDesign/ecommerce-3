@@ -16,6 +16,7 @@ import {
   StarIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { AdminDashboard } from './AdminComponents';
 import './App.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
