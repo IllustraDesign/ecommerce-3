@@ -1804,7 +1804,7 @@ const ProfilePage = () => {
 const AdminWrapper = () => {
   const { user } = useAppContext();
   return <AdminDashboard user={user} />;
-};-span-1">
+};
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
