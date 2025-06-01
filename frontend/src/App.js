@@ -268,6 +268,9 @@ const Navigation = () => {
                 <Link to="/cart" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Cart ({cartItemCount})</Link>
                 {user ? (
                   <>
+                    {user.role === 'admin' && (
+                      <Link to="/admin" className="block px-3 py-2 text-[#B3541E] hover:text-[#9a4519] font-semibold">Admin Dashboard</Link>
+                    )}
                     <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Profile</Link>
                     <button onClick={logout} className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#B3541E]">
                       Logout
