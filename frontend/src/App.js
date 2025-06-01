@@ -66,7 +66,7 @@ const AppProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API}/login`, { email, password });
+      const response = await axios.post(`${API}/auth/login`, { email, password });
       const { access_token, user } = response.data;
       
       localStorage.setItem('token', access_token);
@@ -87,7 +87,7 @@ const AppProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API}/register`, userData);
+      const response = await axios.post(`${API}/auth/register`, userData);
       const { access_token, user } = response.data;
       
       localStorage.setItem('token', access_token);
