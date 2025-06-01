@@ -337,7 +337,7 @@ class IllustraDesignAPITester:
         success, _ = self.run_test(
             "User Access to Admin Dashboard",
             "GET",
-            "api/admin/dashboard",
+            "api/dashboard/stats",
             403,  # Expecting forbidden
             token=self.user_token
         )
