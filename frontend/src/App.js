@@ -1680,6 +1680,10 @@ const AdminProducts = () => {
   );
 };
 
+// Profile Page Component
+const ProfilePage = () => {
+  const { user } = useAppContext();
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -1720,6 +1724,87 @@ const AdminProducts = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {/* User Info */}
           <div className="md:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserIcon className="h-10 w-10 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
+                <p className="text-gray-600">{user.email}</p>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Phone</label>
+                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Address</label>
+                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Member Since</label>
+                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Order History */}
+          <div className="md:col-span-2">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-6">Order History</h2>
+              {orders.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 mb-4">No orders yet</p>
+                  <Link
+                    to="/products"
+                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
+                  >
+                    Start Shopping
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.map((order) => (
+                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
+                          <p className="text-sm text-gray-600">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">₹{order.total_amount}</p>
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {order.items.length} item(s)
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Admin Wrapper Component
+const AdminWrapper = () => {
+  const { user } = useAppContext();
+  return <AdminDashboard user={user} />;
+};-span-1">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
