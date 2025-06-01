@@ -1810,8 +1810,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminDashboard user={user} />} />
           </Routes>
           <Toaster position="top-right" />
         </div>
