@@ -217,6 +217,11 @@ const Navigation = () => {
             
             {user ? (
               <div className="flex items-center space-x-4">
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="text-[#B3541E] hover:text-[#9a4519] transition-colors font-semibold">
+                    Admin
+                  </Link>
+                )}
                 <Link to="/profile" className="text-gray-700 hover:text-[#B3541E] transition-colors">
                   <UserIcon className="h-6 w-6" />
                 </Link>
