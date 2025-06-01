@@ -1796,6 +1796,12 @@ const AdminProducts = () => {
   );
 };
 
+// Admin Wrapper Component
+const AdminWrapper = () => {
+  const { user } = useAppContext();
+  return <AdminDashboard user={user} />;
+};
+
 // Main App Component
 function App() {
   return (
@@ -1810,7 +1816,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminDashboard user={user} />} />
+            <Route path="/admin" element={<AdminWrapper />} />
           </Routes>
           <Toaster position="top-right" />
         </div>
