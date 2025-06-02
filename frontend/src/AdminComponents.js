@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { PlusIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { 
+  PlusIcon, 
+  TrashIcon, 
+  EyeIcon, 
+  XMarkIcon,
+  CloudArrowUpIcon,
+  PhotoIcon
+} from '@heroicons/react/24/outline';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
