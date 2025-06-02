@@ -321,21 +321,30 @@ class IllustraDesignAPITester:
             print(f"✅ Created order with ID: {self.test_order_id}")
             
             # Update order status
-            success, response = self.run_test(
-                "Update Order Status",
-                "PUT",
-                f"api/orders/{self.test_order_id}/status",
-                200,
-                data={"status": "dispatched"},
-                token=self.admin_token
-            )
+            url = f"{self.base_url}/api/orders/{self.test_order_id}/status?status=dispatched"
+            headers = {'Authorization': f'Bearer {self.admin_token}'}
             
-            if not success:
-                return False
+            print("\n🔍 Testing Update Order Status...")
+            self.tests_run += 1
+            
+            try:
+                response = requests.put(url, headers=headers)
                 
-            print(f"✅ Updated order status successfully")
-            
-            return True
+                if response.status_code == 200:
+                    self.tests_passed += 1
+                    print(f"✅ Passed - Status: {response.status_code}")
+                    print(f"✅ Updated order status successfully")
+                    return True
+                else:
+                    print(f"❌ Failed - Expected 200, got {response.status_code}")
+                    try:
+                        print(f"Response: {response.json() if response.text else 'No content'}")
+                    except:
+                        print(f"Response: {response.text}")
+                    return False
+            except Exception as e:
+                print(f"❌ Failed - Error: {str(e)}")
+                return False
             
         except Exception as e:
             print(f"❌ Failed - Error: {str(e)}")
