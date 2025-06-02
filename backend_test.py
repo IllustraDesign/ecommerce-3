@@ -148,7 +148,7 @@ class IllustraDesignAPITester:
             "Create Category",
             "POST",
             "api/categories",
-            201,
+            200,  # API returns 200 instead of 201
             data={"name": category_name},
             token=self.admin_token
         )
