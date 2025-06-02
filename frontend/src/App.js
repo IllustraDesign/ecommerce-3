@@ -1786,20 +1786,46 @@ const CheckoutPage = () => {
               
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-3">
-                    <img
-                      src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
-                      alt="Product"
-                      className="w-12 h-12 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">Custom Product</div>
-                      <div className="text-xs text-gray-600">Qty: {item.quantity}</div>
+                {cart.map((item, index) => {
+                  const product = products[index];
+                  return (
+                    <div key={item.id} className="flex items-start space-x-3 p-3 border border-gray-100 rounded-lg">
+                      <div className="relative">
+                        <img
+                          src={customImages[item.id] || product?.images[0] || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"}
+                          alt={product?.title || "Product"}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        {customImages[item.id] && (
+                          <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                            Custom
+                          </div>
+                        )}
+                        {product?.is_customizable && !customImages[item.id] && (
+                          <div className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                            ⚠️
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{product?.title || "Custom Product"}</div>
+                        <div className="text-xs text-gray-600">
+                          {item.size && `Size: ${item.size} • `}Qty: {item.quantity}
+                        </div>
+                        {product?.is_customizable && !customImages[item.id] && (
+                          <div className="text-xs text-orange-600 mt-1">⚠️ Custom design pending</div>
+                        )}
+                        {customImages[item.id] && (
+                          <div className="text-xs text-green-600 mt-1">✨ Custom design uploaded</div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">₹{(product?.price || 599) * item.quantity}</div>
+                        <div className="text-xs text-gray-500">₹{product?.price || 599} each</div>
+                      </div>
                     </div>
-                    <div className="font-semibold">₹{599 * item.quantity}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="space-y-4 border-t pt-6">
