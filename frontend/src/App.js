@@ -363,7 +363,7 @@ const Navigation = () => {
   );
 };
 
-// Enhanced Hero Section Component
+// Enhanced Hero Section Component with elegant design
 const HeroSection = () => {
   const [heroImages, setHeroImages] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -378,17 +378,17 @@ const HeroSection = () => {
       setHeroImages(response.data);
     } catch (error) {
       console.error('Failed to fetch hero images:', error);
-      // Enhanced fallback hero images
+      // Elegant fallback hero images
       setHeroImages([
         {
           image_url: "https://images.unsplash.com/photo-1503694978374-8a2fa686963a",
-          title: "Design Dreams Into Reality",
-          subtitle: "Premium Custom Printing Solutions"
+          title: "Crafting Visual Excellence",
+          subtitle: "Where artistry meets precision in every design"
         },
         {
           image_url: "https://images.pexels.com/photos/9324380/pexels-photo-9324380.jpeg",
-          title: "Crafted With Precision",
-          subtitle: "Where Quality Meets Creativity"
+          title: "Bespoke Design Solutions",
+          subtitle: "Tailored creativity for discerning clients"
         }
       ]);
     }
@@ -398,7 +398,7 @@ const HeroSection = () => {
     if (heroImages.length > 1) {
       const timer = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-      }, 6000);
+      }, 7000);
       return () => clearInterval(timer);
     }
   }, [heroImages.length]);
@@ -406,99 +406,110 @@ const HeroSection = () => {
   if (heroImages.length === 0) return null;
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-screen overflow-hidden hero-elegant">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, scale: 1.1 }}
+          initial={{ opacity: 0, scale: 1.02 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0"
         >
           <div
             className="h-full bg-cover bg-center bg-no-repeat relative"
             style={{ backgroundImage: `url(${heroImages[currentSlide]?.image_url})` }}
           >
-            {/* Enhanced overlay with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+            {/* Elegant overlay */}
+            <div className="absolute inset-0 overlay-elegant"></div>
             
-            {/* Floating design elements */}
-            <div className="absolute top-20 left-10 w-32 h-32 bg-[#B3541E]/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* Decorative elements */}
+            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary-300 rounded-full opacity-60 animate-pulse"></div>
+            <div className="absolute bottom-1/3 right-1/3 w-1 h-1 bg-accent-300 rounded-full opacity-40 animate-pulse delay-1000"></div>
             
-            <div className="relative z-10 h-full flex items-center justify-center text-center text-white">
+            <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
               <motion.div
-                initial={{ y: 80, opacity: 0 }}
+                initial={{ y: 60, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="max-w-5xl mx-auto px-4"
+                transition={{ delay: 0.6, duration: 1, ease: [0.4, 0, 0.2, 1] }}
+                className="max-w-6xl mx-auto"
               >
                 <motion.h1 
-                  className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+                  className="text-6xl md:text-8xl lg:text-9xl font-serif font-semibold mb-8 leading-tight"
                   style={{ 
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
+                    textShadow: '0 4px 8px rgba(0,0,0,0.3)',
                   }}
                 >
-                  {heroImages[currentSlide]?.title || "Design Dreams Into Reality"}
+                  <span className="block">
+                    {heroImages[currentSlide]?.title?.split(' ')[0] || "Crafting"}
+                  </span>
+                  <span className="block text-primary-200 italic">
+                    {heroImages[currentSlide]?.title?.split(' ').slice(1).join(' ') || "Visual Excellence"}
+                  </span>
                 </motion.h1>
-                
-                <motion.p 
-                  initial={{ y: 40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
-                  className="text-xl md:text-3xl mb-12 text-gray-200 font-light tracking-wide"
-                >
-                  {heroImages[currentSlide]?.subtitle || "Premium Custom Printing Solutions"}
-                </motion.p>
                 
                 <motion.div 
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.1, duration: 0.6 }}
+                  transition={{ delay: 1, duration: 0.8 }}
+                  className="mb-12"
+                >
+                  <div className="w-24 h-0.5 bg-primary-300 mx-auto mb-8"></div>
+                  <p className="text-xl md:text-2xl lg:text-3xl font-garamond font-light text-neutral-100 italic tracking-wide">
+                    {heroImages[currentSlide]?.subtitle || "Where artistry meets precision in every design"}
+                  </p>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1.4, duration: 0.8 }}
                   className="flex flex-col sm:flex-row gap-6 justify-center items-center"
                 >
                   <Link 
                     to="/products"
-                    className="group bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3"
+                    className="group bg-white text-primary-700 px-10 py-4 rounded-full text-lg font-medium hover:bg-primary-50 transition-all duration-300 transform hover:scale-105 shadow-elegant-lg font-sans tracking-elegant"
                   >
                     <span>Explore Collection</span>
-                    <motion.div
-                      className="group-hover:translate-x-1 transition-transform duration-300"
+                    <motion.span
+                      className="inline-block ml-2 group-hover:translate-x-1 transition-transform duration-300"
                     >
                       →
-                    </motion.div>
+                    </motion.span>
                   </Link>
                   
                   <Link 
                     to="/products?category=custom"
-                    className="group border-2 border-white/80 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-[#362222] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10"
+                    className="group glass-elegant text-white px-10 py-4 rounded-full text-lg font-medium hover:bg-white/20 transition-all duration-300 transform hover:scale-105 font-sans tracking-elegant"
                   >
-                    Start Designing
+                    Commission Artwork
                   </Link>
                 </motion.div>
 
-                {/* Trust indicators */}
+                {/* Elegant trust indicators */}
                 <motion.div
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.4, duration: 0.6 }}
-                  className="mt-16 flex justify-center items-center space-x-8 text-white/80"
+                  transition={{ delay: 1.8, duration: 0.8 }}
+                  className="mt-20 flex justify-center items-center space-x-12 text-white/80"
                 >
-                  <div className="flex items-center space-x-2">
-                    <CheckCircleIcon className="h-5 w-5" />
-                    <span className="text-sm">Premium Quality</span>
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <CheckCircleIcon className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-light font-sans">Artisan Quality</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <TruckIcon className="h-5 w-5" />
-                    <span className="text-sm">Fast Delivery</span>
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <TruckIcon className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-light font-sans">Swift Delivery</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <ShieldCheckIcon className="h-5 w-5" />
-                    <span className="text-sm">100% Satisfaction</span>
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <ShieldCheckIcon className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-light font-sans">Lifetime Value</span>
                   </div>
                 </motion.div>
               </motion.div>
@@ -507,17 +518,17 @@ const HeroSection = () => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Enhanced slide indicators */}
+      {/* Elegant slide indicators */}
       {heroImages.length > 1 && (
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
           {heroImages.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+              className={`transition-all duration-300 ${
                 index === currentSlide 
-                  ? 'bg-white scale-125 shadow-lg' 
-                  : 'bg-white/50 hover:bg-white/80'
+                  ? 'w-8 h-2 bg-white rounded-full shadow-elegant' 
+                  : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/80'
               }`}
             />
           ))}
