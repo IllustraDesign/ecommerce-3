@@ -212,7 +212,7 @@ const AppProvider = ({ children }) => {
   );
 };
 
-// Enhanced Navigation component
+// Enhanced Navigation component with elegant design
 const Navigation = () => {
   const { user, cart, logout } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -221,48 +221,48 @@ const Navigation = () => {
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-lg fixed w-full top-0 z-50 border-b border-gray-100">
+    <nav className="nav-elegant fixed w-full top-0 z-50 shadow-elegant">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          {/* Enhanced Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#362222] to-[#B3541E] rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300 shadow-lg">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
-                  <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
-                  <path d="M19 15L19.5 17L21 17.5L19.5 18L19 20L18.5 18L17 17.5L18.5 17L19 15Z" fill="currentColor"/>
+          {/* Elegant Logo */}
+          <Link to="/" className="flex items-center space-x-4 group">
+            <div className="relative logo-float">
+              <div className="w-14 h-14 bg-gradient-elegant-bg rounded-2xl flex items-center justify-center shadow-elegant group-hover:shadow-elegant-lg transition-all duration-300">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-primary-600">
+                  <path d="M12 2L13.5 8.5L20 9.5L13.5 10.5L12 17L10.5 10.5L4 9.5L10.5 8.5L12 2Z" fill="currentColor"/>
+                  <path d="M19 15L19.75 17.25L22 18L19.75 18.75L19 21L18.25 18.75L16 18L18.25 17.25L19 15Z" fill="currentColor"/>
                 </svg>
               </div>
             </div>
             <div className="flex flex-col">
               <div className="flex items-center">
-                <span className="text-2xl font-bold bg-gradient-to-r from-[#362222] to-[#B3541E] bg-clip-text text-transparent">
+                <span className="text-2xl font-serif font-semibold text-gradient-elegant">
                   illustra
                 </span>
-                <span className="text-2xl font-bold text-[#B3541E] ml-1">Design</span>
+                <span className="text-2xl font-serif font-semibold text-accent-600 ml-1">Design</span>
               </div>
-              <span className="text-xs text-gray-500 font-medium tracking-wider -mt-1">STUDIO</span>
+              <span className="text-xs font-sans font-medium tracking-elegant-wide text-neutral-500 -mt-1">STUDIO</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium relative group">
+          <div className="hidden md:flex items-center space-x-10">
+            <Link to="/" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
               Home
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#B3541E] group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link to="/products" className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium relative group">
-              Products
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#B3541E] group-hover:w-full transition-all duration-300"></span>
+            <Link to="/products" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
+              Collection
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
             
-            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-[#B3541E] transition-colors duration-300">
+            <Link to="/cart" className="relative p-3 text-neutral-700 hover:text-primary-600 transition-all duration-300 group">
               <ShoppingCartIcon className="h-6 w-6" />
               {cartItemCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 bg-[#B3541E] text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg"
+                  className="absolute -top-1 -right-1 bg-accent-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-semibold shadow-elegant"
                 >
                   {cartItemCount}
                 </motion.span>
@@ -274,34 +274,34 @@ const Navigation = () => {
                 {user.role === 'admin' && (
                   <Link 
                     to="/admin" 
-                    className="bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium"
+                    className="btn-elegant-primary"
                   >
-                    Admin
+                    Dashboard
                   </Link>
                 )}
-                <Link to="/profile" className="p-2 text-gray-700 hover:text-[#B3541E] transition-colors duration-300">
+                <Link to="/profile" className="p-3 text-neutral-700 hover:text-primary-600 transition-all duration-300">
                   <UserIcon className="h-6 w-6" />
                 </Link>
                 <button 
                   onClick={logout}
-                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 font-medium"
+                  className="btn-elegant-secondary"
                 >
-                  Logout
+                  Sign Out
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link 
                   to="/login" 
-                  className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium"
+                  className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium font-sans"
                 >
-                  Login
+                  Sign In
                 </Link>
                 <Link 
                   to="/register" 
-                  className="bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-6 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium"
+                  className="btn-elegant-primary"
                 >
-                  Sign Up
+                  Join Us
                 </Link>
               </div>
             )}
@@ -311,7 +311,7 @@ const Navigation = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-gray-700 hover:text-[#B3541E] transition-colors"
+              className="p-2 text-neutral-700 hover:text-primary-600 transition-all duration-300"
             >
               {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
@@ -325,33 +325,33 @@ const Navigation = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-100"
+              className="md:hidden border-t border-neutral-200"
             >
-              <div className="px-2 pt-4 pb-4 space-y-3">
-                <Link to="/" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Home</Link>
-                <Link to="/products" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Products</Link>
-                <Link to="/cart" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">
+              <div className="px-2 pt-4 pb-4 space-y-3 bg-white rounded-b-2xl">
+                <Link to="/" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Home</Link>
+                <Link to="/products" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Collection</Link>
+                <Link to="/cart" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">
                   Cart {cartItemCount > 0 && `(${cartItemCount})`}
                 </Link>
                 {user ? (
                   <>
                     {user.role === 'admin' && (
-                      <Link to="/admin" className="block px-3 py-2 text-[#B3541E] hover:text-[#9a4519] font-semibold">
+                      <Link to="/admin" className="block px-4 py-3 text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-semibold font-sans">
                         Admin Dashboard
                       </Link>
                     )}
-                    <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Profile</Link>
+                    <Link to="/profile" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Profile</Link>
                     <button 
                       onClick={logout} 
-                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium"
+                      className="block w-full text-left px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans"
                     >
-                      Logout
+                      Sign Out
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Login</Link>
-                    <Link to="/register" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Sign Up</Link>
+                    <Link to="/login" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Sign In</Link>
+                    <Link to="/register" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Join Us</Link>
                   </>
                 )}
               </div>
