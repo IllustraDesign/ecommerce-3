@@ -624,16 +624,25 @@ def main():
     if not tester.test_user_login():
         print("❌ User login failed, continuing with other tests")
     
+    # Test admin dashboard (priority 2)
     tester.test_admin_dashboard()
+    
+    # Test image upload with fallback (priority 1)
+    tester.test_image_upload_fallback()
     
     if not tester.test_category_management():
         print("❌ Category management failed, continuing with other tests")
     
+    # Test product management with image upload (priority 3)
     if not tester.test_product_management():
         print("❌ Product management failed, continuing with other tests")
+    else:
+        # Test product image upload if product management succeeded
+        tester.test_product_image_upload()
     
     tester.test_cart_functionality()
     
+    # Test order system (priority 4)
     tester.test_checkout_flow()
     
     if not tester.test_order_management():
