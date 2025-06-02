@@ -217,7 +217,7 @@ class IllustraDesignAPITester:
                 "category_id": self.test_category_id,
                 "subcategory_id": self.test_subcategory_id,
                 "sizes": ["S", "M", "L"],
-                "customizable": True,
+                "is_customizable": True,
                 "images": []
             },
             token=self.admin_token
@@ -243,7 +243,7 @@ class IllustraDesignAPITester:
                 "category_id": self.test_category_id,
                 "subcategory_id": self.test_subcategory_id,
                 "sizes": ["S", "M", "L", "XL"],
-                "customizable": True,
+                "is_customizable": True,
                 "images": []
             },
             token=self.admin_token
@@ -283,23 +283,8 @@ class IllustraDesignAPITester:
             "api/orders",
             201,
             data={
-                "items": [
-                    {
-                        "product_id": self.test_product_id,
-                        "quantity": 2,
-                        "size": "M",
-                        "customization": "Test customization"
-                    }
-                ],
-                "shipping_address": {
-                    "name": "Test User",
-                    "street": "123 Test St",
-                    "city": "Test City",
-                    "state": "TS",
-                    "zip": "12345",
-                    "country": "Test Country"
-                },
-                "payment_method": "Credit Card"
+                "billing_address": "123 Test St, Test City, TS 12345",
+                "phone": "1234567890"
             },
             token=self.admin_token
         )
@@ -324,6 +309,62 @@ class IllustraDesignAPITester:
             return False
             
         print(f"✅ Updated order status successfully")
+        
+        return True
+
+    def test_cart_functionality(self):
+        """Test cart functionality"""
+        if not self.admin_token or not self.test_product_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        # Add item to cart
+        success, response = self.run_test(
+            "Add to Cart",
+            "POST",
+            "api/cart/items",
+            201,
+            data={
+                "product_id": self.test_product_id,
+                "quantity": 2,
+                "size": "M"
+            },
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        cart_item_id = response.get("id")
+        print(f"✅ Added item to cart with ID: {cart_item_id}")
+        
+        # Get cart
+        success, response = self.run_test(
+            "Get Cart",
+            "GET",
+            "api/cart",
+            200,
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        print(f"✅ Retrieved cart successfully with {len(response)} items")
+        
+        # Remove from cart
+        success, _ = self.run_test(
+            "Remove from Cart",
+            "DELETE",
+            f"api/cart/{cart_item_id}",
+            200,
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        print(f"✅ Removed item from cart successfully")
         
         return True
 
@@ -385,6 +426,66 @@ class IllustraDesignAPITester:
             return True
         return False
 
+    def test_checkout_flow(self):
+        """Test the complete checkout flow"""
+        if not self.admin_token or not self.test_product_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        # 1. Add item to cart
+        success, response = self.run_test(
+            "Add to Cart for Checkout",
+            "POST",
+            "api/cart/items",
+            201,
+            data={
+                "product_id": self.test_product_id,
+                "quantity": 1,
+                "size": "M"
+            },
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        print(f"✅ Added item to cart for checkout")
+        
+        # 2. Create order (checkout)
+        success, response = self.run_test(
+            "Complete Checkout",
+            "POST",
+            "api/orders",
+            201,
+            data={
+                "billing_address": "456 Checkout St, Test City, TS 12345",
+                "phone": "9876543210"
+            },
+            token=self.admin_token
+        )
+        
+        if not success:
+            return False
+            
+        order_id = response.get("id")
+        print(f"✅ Checkout completed successfully, order created with ID: {order_id}")
+        
+        # 3. Verify cart is empty after checkout
+        success, response = self.run_test(
+            "Verify Cart Empty After Checkout",
+            "GET",
+            "api/cart",
+            200,
+            token=self.admin_token
+        )
+        
+        if success and len(response) == 0:
+            print(f"✅ Cart is empty after checkout as expected")
+            return True
+        else:
+            print(f"❌ Cart is not empty after checkout")
+            return False
+
 def main():
     # Setup
     tester = IllustraDesignAPITester()
@@ -405,6 +506,10 @@ def main():
     if not tester.test_product_management():
         print("❌ Product management failed, continuing with other tests")
     
+    tester.test_cart_functionality()
+    
+    tester.test_checkout_flow()
+    
     if not tester.test_order_management():
         print("❌ Order management failed, continuing with other tests")
     
@@ -419,4 +524,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-      
