@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast, Toaster } from 'react-hot-toast';
 import { 
@@ -13,8 +13,19 @@ import {
   MinusIcon,
   TrashIcon,
   EyeIcon,
-  StarIcon
+  StarIcon,
+  CheckIcon,
+  CreditCardIcon,
+  TruckIcon,
+  ShieldCheckIcon,
+  PhotoIcon,
+  CloudArrowUpIcon
 } from '@heroicons/react/24/outline';
+import { 
+  HeartIcon as HeartSolidIcon,
+  StarIcon as StarSolidIcon,
+  CheckCircleIcon
+} from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { AdminDashboard } from './AdminComponents';
 import './App.css';
@@ -74,11 +85,24 @@ const AppProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       
-      toast.success('Login successful!');
+      toast.success('Welcome back!', {
+        icon: '👋',
+        style: {
+          borderRadius: '12px',
+          background: '#362222',
+          color: '#fff',
+        },
+      });
       await fetchCart();
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      toast.error(error.response?.data?.detail || 'Login failed', {
+        style: {
+          borderRadius: '12px',
+          background: '#ef4444',
+          color: '#fff',
+        },
+      });
       return false;
     } finally {
       setLoading(false);
@@ -95,7 +119,13 @@ const AppProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       
-      toast.success('Registration successful!');
+      toast.success('Welcome to IllustraDesign! 🎨', {
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+        },
+      });
       return true;
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
@@ -111,7 +141,7 @@ const AppProvider = ({ children }) => {
     setUser(null);
     setCart([]);
     setWishlist([]);
-    toast.success('Logged out successfully');
+    toast.success('See you soon! 👋');
   };
 
   const addToCart = async (productId, quantity = 1, size = null) => {
@@ -135,7 +165,13 @@ const AppProvider = ({ children }) => {
       });
 
       await fetchCart();
-      toast.success('Item added to cart!');
+      toast.success('Added to cart! 🛒', {
+        style: {
+          borderRadius: '12px',
+          background: '#B3541E',
+          color: '#fff',
+        },
+      });
     } catch (error) {
       console.error('Add to cart error:', error);
       toast.error('Failed to add item to cart');
@@ -176,7 +212,7 @@ const AppProvider = ({ children }) => {
   );
 };
 
-// Navigation component
+// Enhanced Navigation component
 const Navigation = () => {
   const { user, cart, logout } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -185,58 +221,87 @@ const Navigation = () => {
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <nav className="bg-white shadow-lg fixed w-full top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-md shadow-lg fixed w-full top-0 z-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMzNjIyMjIiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTIgMTJDMiA2LjQ3NzE1IDYuNDc3MTUgMiAxMiAyUzIyIDYuNDc3MTUgMjIgMTJTMTcuNTIyOCAyMiAxMiAyMlMyIDxzeW0taWQiLz4KPC9zdmc+Cjwvc3ZnPgo=" 
-              alt="IllustraDesign" 
-              className="h-10 w-10"
-            />
-            <div>
-              <span className="text-xl font-bold text-[#362222]">illustra</span>
-              <span className="text-xl font-bold text-[#B3541E]">Design</span>
-              <div className="text-xs text-gray-500 -mt-1">Studio</div>
+        <div className="flex justify-between items-center h-20">
+          {/* Enhanced Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#362222] to-[#B3541E] rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300 shadow-lg">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+                  <path d="M19 15L19.5 17L21 17.5L19.5 18L19 20L18.5 18L17 17.5L18.5 17L19 15Z" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center">
+                <span className="text-2xl font-bold bg-gradient-to-r from-[#362222] to-[#B3541E] bg-clip-text text-transparent">
+                  illustra
+                </span>
+                <span className="text-2xl font-bold text-[#B3541E] ml-1">Design</span>
+              </div>
+              <span className="text-xs text-gray-500 font-medium tracking-wider -mt-1">STUDIO</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-[#B3541E] transition-colors">Home</Link>
-            <Link to="/products" className="text-gray-700 hover:text-[#B3541E] transition-colors">Our Products</Link>
-            <Link to="/cart" className="relative text-gray-700 hover:text-[#B3541E] transition-colors">
+            <Link to="/" className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium relative group">
+              Home
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#B3541E] group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            <Link to="/products" className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium relative group">
+              Products
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#B3541E] group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            
+            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-[#B3541E] transition-colors duration-300">
               <ShoppingCartIcon className="h-6 w-6" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#B3541E] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-[#B3541E] text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg"
+                >
                   {cartItemCount}
-                </span>
+                </motion.span>
               )}
             </Link>
             
             {user ? (
               <div className="flex items-center space-x-4">
                 {user.role === 'admin' && (
-                  <Link to="/admin" className="text-[#B3541E] hover:text-[#9a4519] transition-colors font-semibold">
+                  <Link 
+                    to="/admin" 
+                    className="bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium"
+                  >
                     Admin
                   </Link>
                 )}
-                <Link to="/profile" className="text-gray-700 hover:text-[#B3541E] transition-colors">
+                <Link to="/profile" className="p-2 text-gray-700 hover:text-[#B3541E] transition-colors duration-300">
                   <UserIcon className="h-6 w-6" />
                 </Link>
                 <button 
                   onClick={logout}
-                  className="bg-[#B3541E] text-white px-4 py-2 rounded-md hover:bg-[#9a4519] transition-colors"
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 font-medium"
                 >
                   Logout
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link to="/login" className="text-gray-700 hover:text-[#B3541E] transition-colors">Login</Link>
-                <Link to="/register" className="bg-[#B3541E] text-white px-4 py-2 rounded-md hover:bg-[#9a4519] transition-colors">
-                  Register
+                <Link 
+                  to="/login" 
+                  className="text-gray-700 hover:text-[#B3541E] transition-colors duration-300 font-medium"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-6 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium"
+                >
+                  Sign Up
                 </Link>
               </div>
             )}
@@ -246,7 +311,7 @@ const Navigation = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-[#B3541E]"
+              className="p-2 text-gray-700 hover:text-[#B3541E] transition-colors"
             >
               {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
@@ -260,26 +325,33 @@ const Navigation = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden"
+              className="md:hidden border-t border-gray-100"
             >
-              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <Link to="/" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Home</Link>
-                <Link to="/products" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Our Products</Link>
-                <Link to="/cart" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Cart ({cartItemCount})</Link>
+              <div className="px-2 pt-4 pb-4 space-y-3">
+                <Link to="/" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Home</Link>
+                <Link to="/products" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Products</Link>
+                <Link to="/cart" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">
+                  Cart {cartItemCount > 0 && `(${cartItemCount})`}
+                </Link>
                 {user ? (
                   <>
                     {user.role === 'admin' && (
-                      <Link to="/admin" className="block px-3 py-2 text-[#B3541E] hover:text-[#9a4519] font-semibold">Admin Dashboard</Link>
+                      <Link to="/admin" className="block px-3 py-2 text-[#B3541E] hover:text-[#9a4519] font-semibold">
+                        Admin Dashboard
+                      </Link>
                     )}
-                    <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Profile</Link>
-                    <button onClick={logout} className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#B3541E]">
+                    <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Profile</Link>
+                    <button 
+                      onClick={logout} 
+                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium"
+                    >
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Login</Link>
-                    <Link to="/register" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E]">Register</Link>
+                    <Link to="/login" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Login</Link>
+                    <Link to="/register" className="block px-3 py-2 text-gray-700 hover:text-[#B3541E] font-medium">Sign Up</Link>
                   </>
                 )}
               </div>
@@ -291,7 +363,7 @@ const Navigation = () => {
   );
 };
 
-// Hero Section Component
+// Enhanced Hero Section Component
 const HeroSection = () => {
   const [heroImages, setHeroImages] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -306,12 +378,17 @@ const HeroSection = () => {
       setHeroImages(response.data);
     } catch (error) {
       console.error('Failed to fetch hero images:', error);
-      // Fallback hero images
+      // Enhanced fallback hero images
       setHeroImages([
         {
           image_url: "https://images.unsplash.com/photo-1503694978374-8a2fa686963a",
-          title: "Custom Printing Excellence",
-          subtitle: "Design Your Dreams Into Reality"
+          title: "Design Dreams Into Reality",
+          subtitle: "Premium Custom Printing Solutions"
+        },
+        {
+          image_url: "https://images.pexels.com/photos/9324380/pexels-photo-9324380.jpeg",
+          title: "Crafted With Precision",
+          subtitle: "Where Quality Meets Creativity"
         }
       ]);
     }
@@ -321,7 +398,7 @@ const HeroSection = () => {
     if (heroImages.length > 1) {
       const timer = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-      }, 5000);
+      }, 6000);
       return () => clearInterval(timer);
     }
   }, [heroImages.length]);
@@ -335,57 +412,112 @@ const HeroSection = () => {
           key={currentSlide}
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.7 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           <div
             className="h-full bg-cover bg-center bg-no-repeat relative"
             style={{ backgroundImage: `url(${heroImages[currentSlide]?.image_url})` }}
           >
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            {/* Enhanced overlay with gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+            
+            {/* Floating design elements */}
+            <div className="absolute top-20 left-10 w-32 h-32 bg-[#B3541E]/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            
             <div className="relative z-10 h-full flex items-center justify-center text-center text-white">
               <motion.div
-                initial={{ y: 50, opacity: 0 }}
+                initial={{ y: 80, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="max-w-4xl mx-auto px-4"
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="max-w-5xl mx-auto px-4"
               >
-                <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                  {heroImages[currentSlide]?.title || "Custom Printing Excellence"}
-                </h1>
-                <p className="text-xl md:text-2xl mb-8 text-gray-200">
-                  {heroImages[currentSlide]?.subtitle || "Design Your Dreams Into Reality"}
-                </p>
-                <div className="space-x-4">
+                <motion.h1 
+                  className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+                  style={{ 
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  {heroImages[currentSlide]?.title || "Design Dreams Into Reality"}
+                </motion.h1>
+                
+                <motion.p 
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.6 }}
+                  className="text-xl md:text-3xl mb-12 text-gray-200 font-light tracking-wide"
+                >
+                  {heroImages[currentSlide]?.subtitle || "Premium Custom Printing Solutions"}
+                </motion.p>
+                
+                <motion.div 
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1.1, duration: 0.6 }}
+                  className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                >
                   <Link 
                     to="/products"
-                    className="bg-[#B3541E] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#9a4519] transition-all transform hover:scale-105 inline-block"
+                    className="group bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3"
                   >
-                    Shop Now
+                    <span>Explore Collection</span>
+                    <motion.div
+                      className="group-hover:translate-x-1 transition-transform duration-300"
+                    >
+                      →
+                    </motion.div>
                   </Link>
+                  
                   <Link 
                     to="/products?category=custom"
-                    className="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#362222] transition-all transform hover:scale-105 inline-block"
+                    className="group border-2 border-white/80 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-[#362222] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10"
                   >
-                    Customize
+                    Start Designing
                   </Link>
-                </div>
+                </motion.div>
+
+                {/* Trust indicators */}
+                <motion.div
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1.4, duration: 0.6 }}
+                  className="mt-16 flex justify-center items-center space-x-8 text-white/80"
+                >
+                  <div className="flex items-center space-x-2">
+                    <CheckCircleIcon className="h-5 w-5" />
+                    <span className="text-sm">Premium Quality</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <TruckIcon className="h-5 w-5" />
+                    <span className="text-sm">Fast Delivery</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <ShieldCheckIcon className="h-5 w-5" />
+                    <span className="text-sm">100% Satisfaction</span>
+                  </div>
+                </motion.div>
               </motion.div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Slide indicators */}
+      {/* Enhanced slide indicators */}
       {heroImages.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
           {heroImages.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentSlide ? 'bg-white' : 'bg-white bg-opacity-50'
+              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                index === currentSlide 
+                  ? 'bg-white scale-125 shadow-lg' 
+                  : 'bg-white/50 hover:bg-white/80'
               }`}
             />
           ))}
@@ -395,69 +527,147 @@ const HeroSection = () => {
   );
 };
 
-// Product Card Component
+// Enhanced Product Card Component
 const ProductCard = ({ product, onQuickView }) => {
   const { addToCart } = useAppContext();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAddToCart = async () => {
+    setIsLoading(true);
+    await addToCart(product.id);
+    setIsLoading(false);
+  };
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
-      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all"
+      whileHover={{ y: -8 }}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
     >
-      <div className="relative group">
+      <div className="relative overflow-hidden">
         <img
           src={product.images[0] || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'}
           alt={product.title}
-          className="w-full h-64 object-cover"
+          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <div className="space-x-2">
-            <button
+        
+        {/* Overlay actions */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <div className="flex space-x-3">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => onQuickView(product)}
-              className="bg-white text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="bg-white/90 backdrop-blur-sm text-gray-800 p-3 rounded-full hover:bg-white transition-colors shadow-lg"
             >
               <EyeIcon className="h-5 w-5" />
-            </button>
-            <button className="bg-white text-red-500 p-2 rounded-full hover:bg-gray-100 transition-colors">
-              <HeartIcon className="h-5 w-5" />
-            </button>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsLiked(!isLiked)}
+              className="bg-white/90 backdrop-blur-sm p-3 rounded-full hover:bg-white transition-colors shadow-lg"
+            >
+              {isLiked ? (
+                <HeartSolidIcon className="h-5 w-5 text-red-500" />
+              ) : (
+                <HeartIcon className="h-5 w-5 text-gray-800" />
+              )}
+            </motion.button>
           </div>
         </div>
-        {product.is_customizable && (
-          <div className="absolute top-2 left-2 bg-[#B3541E] text-white px-2 py-1 rounded-md text-xs font-semibold">
-            Customizable
-          </div>
-        )}
+        
+        {/* Product badges */}
+        <div className="absolute top-4 left-4 flex flex-col space-y-2">
+          {product.is_customizable && (
+            <span className="bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+              Customizable
+            </span>
+          )}
+        </div>
+
+        {/* Quick add to cart */}
+        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleAddToCart}
+            disabled={isLoading}
+            className="bg-[#B3541E] text-white p-3 rounded-full hover:bg-[#9a4519] transition-colors shadow-lg disabled:opacity-50"
+          >
+            {isLoading ? (
+              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <PlusIcon className="h-5 w-5" />
+            )}
+          </motion.button>
+        </div>
       </div>
       
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-800 mb-2">{product.title}</h3>
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-[#362222]">₹{product.price}</span>
-          <button
-            onClick={() => addToCart(product.id)}
-            className="bg-[#B3541E] text-white px-4 py-2 rounded-md hover:bg-[#9a4519] transition-colors"
-          >
-            Add to Cart
-          </button>
+      <div className="p-6">
+        <h3 className="font-bold text-gray-800 mb-2 text-lg group-hover:text-[#B3541E] transition-colors">
+          {product.title}
+        </h3>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+          {product.description}
+        </p>
+        
+        {/* Price and rating */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-[#362222]">₹{product.price}</span>
+            {product.sizes && product.sizes.length > 0 && (
+              <span className="text-xs text-gray-500">Available in {product.sizes.length} sizes</span>
+            )}
+          </div>
+          <div className="flex items-center space-x-1">
+            {[...Array(5)].map((_, i) => (
+              <StarSolidIcon key={i} className="h-4 w-4 text-yellow-400" />
+            ))}
+            <span className="text-sm text-gray-500 ml-1">(4.8)</span>
+          </div>
         </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleAddToCart}
+          disabled={isLoading}
+          className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-3 rounded-xl font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 transform hover:shadow-lg disabled:opacity-50"
+        >
+          {isLoading ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              <span>Adding...</span>
+            </div>
+          ) : (
+            'Add to Cart'
+          )}
+        </motion.button>
       </div>
     </motion.div>
   );
 };
 
-// Product Detail Modal
+// Enhanced Product Detail Modal
 const ProductDetailModal = ({ product, isOpen, onClose }) => {
   const { addToCart } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen || !product) return null;
+
+  const handleAddToCart = async () => {
+    setIsLoading(true);
+    await addToCart(product.id, quantity, selectedSize);
+    setIsLoading(false);
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -465,34 +675,41 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto"
+          className="bg-white rounded-3xl max-w-5xl w-full max-h-screen overflow-y-auto shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="grid md:grid-cols-2 gap-8 p-6">
+          <div className="grid md:grid-cols-2 gap-8 p-8">
             {/* Product Images */}
-            <div>
-              <div className="mb-4">
+            <div className="space-y-4">
+              <div className="relative overflow-hidden rounded-2xl">
                 <img
                   src={product.images[selectedImage] || product.images[0]}
                   alt={product.title}
-                  className="w-full h-96 object-cover rounded-lg"
+                  className="w-full h-96 object-cover"
                 />
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
               </div>
+              
               {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {product.images.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`border-2 rounded-md overflow-hidden ${
-                        selectedImage === index ? 'border-[#B3541E]' : 'border-gray-200'
+                      className={`border-2 rounded-lg overflow-hidden transition-all ${
+                        selectedImage === index ? 'border-[#B3541E] ring-2 ring-[#B3541E]/20' : 'border-gray-200 hover:border-[#B3541E]/50'
                       }`}
                     >
                       <img src={image} alt="" className="w-full h-20 object-cover" />
@@ -503,87 +720,122 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
             </div>
 
             {/* Product Details */}
-            <div>
-              <button
-                onClick={onClose}
-                className="float-right text-gray-500 hover:text-gray-700"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">{product.title}</h2>
+                <p className="text-gray-600 text-lg leading-relaxed">{product.description}</p>
+              </div>
               
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">{product.title}</h2>
-              <p className="text-gray-600 mb-6">{product.description}</p>
-              
-              <div className="mb-6">
-                <span className="text-3xl font-bold text-[#362222]">₹{product.price}</span>
+              <div className="flex items-center space-x-4">
+                <span className="text-4xl font-bold text-[#362222]">₹{product.price}</span>
+                <div className="flex items-center space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <StarSolidIcon key={i} className="h-5 w-5 text-yellow-400" />
+                  ))}
+                  <span className="text-gray-500 ml-2">(4.8 rating)</span>
+                </div>
               </div>
 
               {/* Size Selection */}
               {product.sizes && product.sizes.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-3">Size:</h4>
-                  <div className="flex space-x-2">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-lg">Size:</h4>
+                  <div className="flex flex-wrap gap-3">
                     {product.sizes.map((size) => (
-                      <button
+                      <motion.button
                         key={size}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 border rounded-md ${
+                        className={`px-6 py-3 border-2 rounded-xl font-medium transition-all ${
                           selectedSize === size
-                            ? 'border-[#B3541E] bg-[#B3541E] text-white'
-                            : 'border-gray-300 hover:border-[#B3541E]'
+                            ? 'border-[#B3541E] bg-[#B3541E] text-white shadow-lg'
+                            : 'border-gray-300 hover:border-[#B3541E] hover:shadow-md'
                         }`}
                       >
                         {size}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Quantity Selection */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-3">Quantity:</h4>
-                <div className="flex items-center space-x-3">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-lg">Quantity:</h4>
+                <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 border rounded-md hover:bg-gray-100"
+                    className="p-3 border-2 border-gray-300 rounded-xl hover:border-[#B3541E] hover:bg-gray-50 transition-colors"
                   >
-                    <MinusIcon className="h-4 w-4" />
+                    <MinusIcon className="h-5 w-5" />
                   </button>
-                  <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
+                  <span className="text-2xl font-semibold w-16 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 border rounded-md hover:bg-gray-100"
+                    className="p-3 border-2 border-gray-300 rounded-xl hover:border-[#B3541E] hover:bg-gray-50 transition-colors"
                   >
-                    <PlusIcon className="h-4 w-4" />
+                    <PlusIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={() => {
-                    addToCart(product.id, quantity, selectedSize);
-                    onClose();
-                  }}
-                  className="w-full bg-[#B3541E] text-white py-3 rounded-md hover:bg-[#9a4519] transition-colors font-semibold"
+              <div className="space-y-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleAddToCart}
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-4 rounded-xl text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 shadow-lg disabled:opacity-50"
                 >
-                  Add to Cart
-                </button>
-                <button className="w-full border border-[#B3541E] text-[#B3541E] py-3 rounded-md hover:bg-[#B3541E] hover:text-white transition-colors font-semibold">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Adding to Cart...</span>
+                    </div>
+                  ) : (
+                    'Add to Cart'
+                  )}
+                </motion.button>
+                
+                <button className="w-full border-2 border-[#B3541E] text-[#B3541E] py-4 rounded-xl text-lg font-semibold hover:bg-[#B3541E] hover:text-white transition-all duration-300">
                   Add to Wishlist
                 </button>
               </div>
 
+              {/* Product Features */}
               {product.is_customizable && (
-                <div className="mt-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
-                  <h4 className="font-semibold text-orange-800 mb-2">Customization Available</h4>
-                  <p className="text-sm text-orange-700">
-                    This product can be customized with your own design. Upload your image during checkout.
-                  </p>
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-orange-100 p-2 rounded-lg">
+                      <PhotoIcon className="h-6 w-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-orange-800 mb-2">Customization Available</h4>
+                      <p className="text-sm text-orange-700">
+                        This product can be personalized with your own design. Upload your image during checkout for a truly unique creation.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
+
+              {/* Trust badges */}
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                <div className="text-center space-y-2">
+                  <ShieldCheckIcon className="h-8 w-8 text-green-500 mx-auto" />
+                  <span className="text-sm font-medium text-gray-700">Quality Guaranteed</span>
+                </div>
+                <div className="text-center space-y-2">
+                  <TruckIcon className="h-8 w-8 text-blue-500 mx-auto" />
+                  <span className="text-sm font-medium text-gray-700">Fast Shipping</span>
+                </div>
+                <div className="text-center space-y-2">
+                  <CheckCircleIcon className="h-8 w-8 text-purple-500 mx-auto" />
+                  <span className="text-sm font-medium text-gray-700">Easy Returns</span>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -592,7 +844,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
   );
 };
 
-// Home Page Component
+// Enhanced Home Page Component
 const HomePage = () => {
   const [newArrivals, setNewArrivals] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -621,21 +873,21 @@ const HomePage = () => {
       <HeroSection />
       
       {/* New Arrivals Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-[#362222] mb-4">New Arrivals</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover our latest collection of customizable products, designed to bring your creative vision to life.
+            <h2 className="text-5xl font-bold text-[#362222] mb-6">New Arrivals</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Discover our latest collection of customizable products, crafted with precision and designed to bring your creative vision to life.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {newArrivals.map((product, index) => (
               <motion.div
                 key={product.id}
@@ -648,115 +900,173 @@ const HomePage = () => {
             ))}
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center">
             <Link
               to="/products"
-              className="bg-[#B3541E] text-white px-8 py-3 rounded-md hover:bg-[#9a4519] transition-colors font-semibold"
+              className="inline-flex items-center space-x-3 bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              View All Products
+              <span>View All Products</span>
+              <motion.div
+                className="group-hover:translate-x-1 transition-transform duration-300"
+              >
+                →
+              </motion.div>
             </Link>
           </div>
         </div>
       </section>
 
       {/* About Section */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
             >
-              <h2 className="text-4xl font-bold text-[#362222] mb-6">About IllustraDesign Studio</h2>
-              <p className="text-gray-600 mb-6">
-                We are passionate about transforming your creative ideas into high-quality printed products. 
-                With state-of-the-art printing technology and a commitment to excellence, we deliver 
-                personalized products that exceed expectations.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-[#B3541E] rounded-full"></div>
-                  <span className="text-gray-700">Premium Quality Materials</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-[#B3541E] rounded-full"></div>
-                  <span className="text-gray-700">Fast & Reliable Delivery</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-[#B3541E] rounded-full"></div>
-                  <span className="text-gray-700">Custom Design Support</span>
-                </div>
+              <div>
+                <h2 className="text-5xl font-bold text-[#362222] mb-6">About IllustraDesign Studio</h2>
+                <p className="text-xl text-gray-600 leading-relaxed mb-8">
+                  We are passionate creators who transform your ideas into high-quality printed masterpieces. 
+                  With cutting-edge technology and unwavering commitment to excellence, we deliver 
+                  personalized products that exceed expectations.
+                </p>
+              </div>
+              
+              <div className="space-y-6">
+                {[
+                  { icon: '🎨', title: 'Premium Quality Materials', desc: 'Only the finest materials for lasting beauty' },
+                  { icon: '🚀', title: 'Fast & Reliable Delivery', desc: 'Express shipping with tracking included' },
+                  { icon: '💡', title: 'Custom Design Support', desc: 'Professional design assistance available' }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.2 }}
+                    className="flex items-start space-x-4"
+                  >
+                    <div className="text-2xl">{feature.icon}</div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 text-lg">{feature.title}</h3>
+                      <p className="text-gray-600">{feature.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
+              className="relative"
             >
-              <img
-                src="https://images.unsplash.com/photo-1556761175-4b46a572b786"
-                alt="Design Studio"
-                className="rounded-lg shadow-lg"
-              />
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1556761175-4b46a572b786"
+                  alt="Design Studio"
+                  className="w-full h-96 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              </div>
+              
+              {/* Floating stats */}
+              <div className="absolute -bottom-8 -left-8 bg-white rounded-2xl shadow-xl p-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#B3541E]">10,000+</div>
+                  <div className="text-sm text-gray-600">Happy Customers</div>
+                </div>
+              </div>
+              
+              <div className="absolute -top-8 -right-8 bg-white rounded-2xl shadow-xl p-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#362222]">24/7</div>
+                  <div className="text-sm text-gray-600">Support</div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#362222] text-white py-12">
+      {/* Enhanced Footer */}
+      <footer className="bg-gradient-to-r from-[#362222] to-[#2d1b1b] text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <img 
-                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNCMzU0MUUiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTIgMTJDMiA2LjQ3NzE1IDYuNDc3MTUgMiAxMiAyUzIyIDYuNDc3MTUgMjIgMTJTMTcuNTIyOCAyMiAxMiAyMlMyIDxzeW0taWQiLz4KPC9zdmc+Cjwvc3ZnPgo=" 
-                  alt="IllustraDesign" 
-                  className="h-8 w-8"
-                />
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#B3541E] to-[#9a4519] rounded-xl flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                    <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+                  </svg>
+                </div>
                 <div>
-                  <span className="text-lg font-bold">illustra</span>
-                  <span className="text-lg font-bold text-[#B3541E]">Design</span>
+                  <span className="text-xl font-bold">illustraDesign</span>
+                  <div className="text-xs text-gray-300 font-medium">STUDIO</div>
                 </div>
               </div>
-              <p className="text-gray-300">
-                Transforming ideas into beautiful printed products with passion and precision.
+              <p className="text-gray-300 leading-relaxed">
+                Transforming ideas into beautiful printed products with passion, precision, and unmatched quality.
               </p>
+              <div className="flex space-x-4">
+                {['📧', '📞', '📍'].map((icon, index) => (
+                  <div key={index} className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+                    <span>{icon}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link to="/" className="hover:text-[#B3541E] transition-colors">Home</Link></li>
-                <li><Link to="/products" className="hover:text-[#B3541E] transition-colors">Products</Link></li>
-                <li><Link to="/about" className="hover:text-[#B3541E] transition-colors">About</Link></li>
-                <li><Link to="/contact" className="hover:text-[#B3541E] transition-colors">Contact</Link></li>
+              <h3 className="font-semibold mb-6 text-lg">Quick Links</h3>
+              <ul className="space-y-3 text-gray-300">
+                {['Home', 'Products', 'About', 'Contact'].map((link) => (
+                  <li key={link}>
+                    <Link to={`/${link.toLowerCase()}`} className="hover:text-[#B3541E] transition-colors">
+                      {link}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4">Categories</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link to="/products?category=clothing" className="hover:text-[#B3541E] transition-colors">Clothing</Link></li>
-                <li><Link to="/products?category=mugs" className="hover:text-[#B3541E] transition-colors">Mugs</Link></li>
-                <li><Link to="/products?category=cards" className="hover:text-[#B3541E] transition-colors">Business Cards</Link></li>
-                <li><Link to="/products?category=posters" className="hover:text-[#B3541E] transition-colors">Posters</Link></li>
+              <h3 className="font-semibold mb-6 text-lg">Categories</h3>
+              <ul className="space-y-3 text-gray-300">
+                {['Clothing', 'Mugs', 'Business Cards', 'Posters'].map((category) => (
+                  <li key={category}>
+                    <Link to={`/products?category=${category.toLowerCase()}`} className="hover:text-[#B3541E] transition-colors">
+                      {category}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4">Contact Info</h3>
-              <div className="space-y-2 text-gray-300">
-                <p>📧 info@illustradesign.com</p>
-                <p>📞 +91 98765 43210</p>
-                <p>📍 Mumbai, India</p>
+              <h3 className="font-semibold mb-6 text-lg">Contact Info</h3>
+              <div className="space-y-4 text-gray-300">
+                <div className="flex items-center space-x-3">
+                  <span>📧</span>
+                  <span>info@illustradesign.com</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span>📞</span>
+                  <span>+91 98765 43210</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span>📍</span>
+                  <span>Mumbai, India</span>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-            <p>&copy; 2025 IllustraDesign Studio. All rights reserved.</p>
+          <div className="border-t border-gray-700 pt-8 text-center text-gray-300">
+            <p>&copy; 2025 IllustraDesign Studio. All rights reserved. Made with ❤️ for creators.</p>
           </div>
         </div>
       </footer>
@@ -770,7 +1080,7 @@ const HomePage = () => {
   );
 };
 
-// Products Page Component
+// Enhanced Products Page
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -816,37 +1126,53 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#362222] mb-4">Our Products</h1>
-          <p className="text-gray-600">Discover our wide range of customizable products</p>
+        {/* Enhanced Header */}
+        <div className="text-center mb-16">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-[#362222] mb-6"
+          >
+            Our Products
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl text-gray-600 max-w-2xl mx-auto"
+          >
+            Discover our wide range of customizable products designed to bring your creative vision to life
+          </motion.p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
+        {/* Enhanced Filters */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-2xl shadow-lg p-8 mb-12"
+        >
+          <div className="flex flex-col lg:flex-row gap-6 items-center">
             {/* Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                />
-              </div>
+            <div className="flex-1 relative">
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] text-lg"
+              />
             </div>
 
             {/* Category Filter */}
-            <div className="md:w-64">
+            <div className="lg:w-80">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
+                className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] text-lg"
               >
                 <option value="">All Categories</option>
                 {categories.map((category) => (
@@ -857,29 +1183,48 @@ const ProductsPage = () => {
               </select>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Products Grid */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#B3541E]"></div>
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#B3541E] border-t-transparent"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 bg-[#B3541E] rounded-full animate-pulse"></div>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <ProductCard
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+          >
+            {products.map((product, index) => (
+              <motion.div
                 key={product.id}
-                product={product}
-                onQuickView={handleQuickView}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+              >
+                <ProductCard product={product} onQuickView={handleQuickView} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {!loading && products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No products found</h3>
+            <p className="text-gray-600 text-lg">Try adjusting your search or filters to find what you're looking for.</p>
+          </motion.div>
         )}
       </div>
 
@@ -892,7 +1237,7 @@ const ProductsPage = () => {
   );
 };
 
-// Cart Page Component
+// Enhanced Cart Page
 const CartPage = () => {
   const { cart, removeFromCart, fetchCart } = useAppContext();
   const [loading, setLoading] = useState(false);
@@ -902,18 +1247,9 @@ const CartPage = () => {
     fetchCart();
   }, []);
 
-  const updateQuantity = async (itemId, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeFromCart(itemId);
-      return;
-    }
-    // Implementation for updating quantity would go here
-  };
-
   const getTotalPrice = () => {
     return cart.reduce((total, item) => {
-      // Note: In a real app, you'd fetch product details to get the price
-      return total + (599 * item.quantity); // Using a default price for demo
+      return total + (599 * item.quantity); // Using default price for demo
     }, 0);
   };
 
@@ -926,63 +1262,74 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#362222] mb-8">Shopping Cart</h1>
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-bold text-[#362222] mb-8"
+        >
+          Shopping Cart
+        </motion.h1>
 
         {cart.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <ShoppingCartIcon className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-600 mb-4">Your cart is empty</h2>
-            <p className="text-gray-500 mb-8">Discover our amazing products and add them to your cart!</p>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-lg p-16 text-center"
+          >
+            <div className="text-8xl mb-6">🛒</div>
+            <h2 className="text-3xl font-semibold text-gray-600 mb-4">Your cart is empty</h2>
+            <p className="text-gray-500 mb-8 text-lg">Discover our amazing products and add them to your cart!</p>
             <Link
               to="/products"
-              className="bg-[#B3541E] text-white px-8 py-3 rounded-md hover:bg-[#9a4519] transition-colors font-semibold"
+              className="inline-flex items-center space-x-3 bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Continue Shopping
+              <span>Continue Shopping</span>
+              <motion.div className="group-hover:translate-x-1 transition-transform duration-300">→</motion.div>
             </Link>
-          </div>
+          </motion.div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold mb-6">Cart Items ({cart.length})</h2>
+              <div className="bg-white rounded-3xl shadow-lg p-8">
+                <h2 className="text-2xl font-semibold mb-8">Cart Items ({cart.length})</h2>
                 <div className="space-y-6">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 border-b border-gray-200 pb-6">
+                  {cart.map((item, index) => (
+                    <motion.div 
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center space-x-6 p-6 border border-gray-100 rounded-2xl hover:shadow-md transition-shadow"
+                    >
                       <img
                         src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
                         alt="Product"
-                        className="w-20 h-20 object-cover rounded-md"
+                        className="w-24 h-24 object-cover rounded-xl"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800">Product Title</h3>
+                        <h3 className="font-semibold text-gray-800 text-lg">Custom Product</h3>
                         <p className="text-gray-600">Size: {item.size || 'M'}</p>
-                        <p className="text-[#B3541E] font-semibold">₹599</p>
+                        <p className="text-[#B3541E] font-semibold text-lg">₹599</p>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-1 border rounded-md hover:bg-gray-100"
-                        >
+                      <div className="flex items-center space-x-3">
+                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                           <MinusIcon className="h-4 w-4" />
                         </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-1 border rounded-md hover:bg-gray-100"
-                        >
+                        <span className="w-12 text-center font-medium text-lg">{item.quantity}</span>
+                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                           <PlusIcon className="h-4 w-4" />
                         </button>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="text-red-500 hover:text-red-700"
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -990,31 +1337,58 @@ const CartPage = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-white rounded-3xl shadow-lg p-8 sticky top-8"
+              >
+                <h2 className="text-2xl font-semibold mb-8">Order Summary</h2>
+                <div className="space-y-6">
+                  <div className="flex justify-between text-lg">
                     <span>Subtotal</span>
                     <span>₹{getTotalPrice()}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-lg">
                     <span>Shipping</span>
-                    <span>Free</span>
+                    <span className="text-green-600 font-medium">Free</span>
                   </div>
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between font-semibold text-lg">
+                  <div className="flex justify-between text-lg">
+                    <span>Tax</span>
+                    <span>₹{Math.round(getTotalPrice() * 0.18)}</span>
+                  </div>
+                  <div className="border-t pt-6">
+                    <div className="flex justify-between font-bold text-xl">
                       <span>Total</span>
-                      <span>₹{getTotalPrice()}</span>
+                      <span>₹{getTotalPrice() + Math.round(getTotalPrice() * 0.18)}</span>
                     </div>
                   </div>
                 </div>
-                <button
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleCheckout}
-                  className="w-full bg-[#B3541E] text-white py-3 rounded-md hover:bg-[#9a4519] transition-colors font-semibold mt-6"
+                  className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-4 rounded-xl text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 shadow-lg mt-8"
                 >
                   Proceed to Checkout
-                </button>
-              </div>
+                </motion.button>
+
+                {/* Trust badges */}
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <ShieldCheckIcon className="h-5 w-5 text-green-500" />
+                    <span>Secure checkout</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <TruckIcon className="h-5 w-5 text-blue-500" />
+                    <span>Free shipping on orders over ₹500</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <CheckCircleIcon className="h-5 w-5 text-purple-500" />
+                    <span>30-day return policy</span>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         )}
@@ -1023,7 +1397,385 @@ const CartPage = () => {
   );
 };
 
-// Login Page Component
+// Enhanced Checkout Page
+const CheckoutPage = () => {
+  const { cart, user } = useAppContext();
+  const [formData, setFormData] = useState({
+    billingAddress: '',
+    phone: '',
+    couponCode: '',
+    shippingOption: 'standard'
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
+
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => total + (599 * item.quantity), 0);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API}/orders`, {
+        billing_address: formData.billingAddress,
+        phone: formData.phone
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Order placed successfully! 🎉', {
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+        },
+      });
+
+      navigate('/profile');
+    } catch (error) {
+      toast.error('Failed to place order. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4 text-lg">Please login to proceed with checkout</p>
+          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-3 rounded-lg hover:bg-[#9a4519] transition-colors">
+            Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4 text-lg">Your cart is empty</p>
+          <Link to="/products" className="bg-[#B3541E] text-white px-6 py-3 rounded-lg hover:bg-[#9a4519] transition-colors">
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-bold text-[#362222] mb-8"
+        >
+          Checkout
+        </motion.h1>
+
+        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+          {/* Checkout Form */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Billing Information */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-3xl shadow-lg p-8"
+            >
+              <h2 className="text-2xl font-semibold mb-6">Billing Information</h2>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Address</label>
+                  <textarea
+                    required
+                    rows="3"
+                    value={formData.billingAddress}
+                    onChange={(e) => setFormData({...formData, billingAddress: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
+                    placeholder="Enter your complete address..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Shipping Options */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-3xl shadow-lg p-8"
+            >
+              <h2 className="text-2xl font-semibold mb-6">Shipping Options</h2>
+              <div className="space-y-4">
+                {[
+                  { id: 'standard', name: 'Standard Delivery', time: '5-7 business days', price: 'Free' },
+                  { id: 'express', name: 'Express Delivery', time: '2-3 business days', price: '₹99' },
+                  { id: 'overnight', name: 'Overnight Delivery', time: 'Next business day', price: '₹299' }
+                ].map((option) => (
+                  <label key={option.id} className="flex items-center p-4 border border-gray-200 rounded-xl hover:border-[#B3541E] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="shipping"
+                      value={option.id}
+                      checked={formData.shippingOption === option.id}
+                      onChange={(e) => setFormData({...formData, shippingOption: e.target.value})}
+                      className="text-[#B3541E] focus:ring-[#B3541E]"
+                    />
+                    <div className="ml-4 flex-1">
+                      <div className="font-medium">{option.name}</div>
+                      <div className="text-sm text-gray-600">{option.time}</div>
+                    </div>
+                    <div className="font-semibold text-[#B3541E]">{option.price}</div>
+                  </label>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Payment Method */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-3xl shadow-lg p-8"
+            >
+              <h2 className="text-2xl font-semibold mb-6">Payment Method</h2>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div className="flex items-center space-x-3">
+                  <CreditCardIcon className="h-6 w-6 text-blue-600" />
+                  <div>
+                    <h3 className="font-semibold text-blue-800">Secure Payment</h3>
+                    <p className="text-sm text-blue-600">Payment gateway integration available in production</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-3xl shadow-lg p-8 sticky top-8"
+            >
+              <h2 className="text-2xl font-semibold mb-6">Order Summary</h2>
+              
+              {/* Cart Items */}
+              <div className="space-y-4 mb-6">
+                {cart.map((item) => (
+                  <div key={item.id} className="flex items-center space-x-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
+                      alt="Product"
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">Custom Product</div>
+                      <div className="text-xs text-gray-600">Qty: {item.quantity}</div>
+                    </div>
+                    <div className="font-semibold">₹{599 * item.quantity}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-4 border-t pt-6">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>₹{getTotalPrice()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="text-green-600">Free</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax (18%)</span>
+                  <span>₹{Math.round(getTotalPrice() * 0.18)}</span>
+                </div>
+                <div className="border-t pt-4">
+                  <div className="flex justify-between font-bold text-xl">
+                    <span>Total</span>
+                    <span>₹{getTotalPrice() + Math.round(getTotalPrice() * 0.18)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <motion.button
+                type="submit"
+                disabled={isProcessing}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-4 rounded-xl text-lg font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 shadow-lg mt-8 disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  'Place Order'
+                )}
+              </motion.button>
+            </motion.div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Profile, Login, Register components (keeping existing enhanced versions)
+const ProfilePage = () => {
+  const { user } = useAppContext();
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
+
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please login to view your profile</p>
+          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]">
+            Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-bold text-[#362222] mb-8"
+        >
+          My Profile
+        </motion.h1>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* User Info */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="md:col-span-1"
+          >
+            <div className="bg-white rounded-3xl shadow-lg p-8">
+              <div className="text-center mb-8">
+                <div className="w-24 h-24 bg-gradient-to-br from-[#B3541E] to-[#9a4519] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserIcon className="h-12 w-12 text-white" />
+                </div>
+                <h2 className="text-2xl font-semibold text-gray-800">{user.name}</h2>
+                <p className="text-gray-600">{user.email}</p>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Phone</label>
+                  <p className="text-gray-600 mt-1">{user.phone || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Address</label>
+                  <p className="text-gray-600 mt-1">{user.address || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Member Since</label>
+                  <p className="text-gray-600 mt-1">{new Date(user.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Order History */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="md:col-span-2"
+          >
+            <div className="bg-white rounded-3xl shadow-lg p-8">
+              <h2 className="text-2xl font-semibold mb-8">Order History</h2>
+              {orders.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📦</div>
+                  <p className="text-gray-500 mb-6 text-lg">No orders yet</p>
+                  <Link
+                    to="/products"
+                    className="bg-[#B3541E] text-white px-6 py-3 rounded-xl hover:bg-[#9a4519] transition-colors"
+                  >
+                    Start Shopping
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {orders.map((order) => (
+                    <div key={order.id} className="border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-semibold text-lg">Order #{order.id.slice(-8)}</h3>
+                          <p className="text-gray-600">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-lg">₹{order.total_amount}</p>
+                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-gray-600">
+                        {order.items.length} item(s)
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const LoginPage = () => {
   const { login } = useAppContext();
   const [email, setEmail] = useState('');
@@ -1039,65 +1791,63 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-[#362222]">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/register" className="font-medium text-[#B3541E] hover:text-[#9a4519]">
-              create a new account
-            </Link>
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 pb-12 flex items-center justify-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 mx-4"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-[#362222]">Welcome Back</h2>
+          <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="sr-only">
-              Email address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
-              id="email"
-              name="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Email address"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Enter your email"
             />
           </div>
+          
           <div>
-            <label htmlFor="password" className="sr-only">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input
-              id="password"
-              name="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Enter your password"
             />
           </div>
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#B3541E] hover:bg-[#9a4519] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B3541E]"
-            >
-              Sign in
-            </button>
-          </div>
+
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-3 rounded-xl font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 shadow-lg"
+          >
+            Sign In
+          </motion.button>
         </form>
-      </div>
+
+        <p className="mt-8 text-center text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/register" className="font-medium text-[#B3541E] hover:text-[#9a4519] transition-colors">
+            Sign up
+          </Link>
+        </p>
+      </motion.div>
     </div>
   );
 };
 
-// Register Page Component
 const RegisterPage = () => {
   const { register } = useAppContext();
   const [formData, setFormData] = useState({
@@ -1125,1117 +1875,98 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-[#362222]">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-[#B3541E] hover:text-[#9a4519]">
-              sign in to existing account
-            </Link>
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 pb-12 flex items-center justify-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 mx-4"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-[#362222]">Create Account</h2>
+          <p className="mt-2 text-gray-600">Join the IllustraDesign community</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
             <input
               name="name"
               type="text"
               required
               value={formData.name}
               onChange={handleChange}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Full name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Enter your full name"
             />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
               name="email"
               type="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Email address"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Enter your email"
             />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input
               name="password"
               type="password"
               required
               value={formData.password}
               onChange={handleChange}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Create a password"
             />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
             <input
               name="phone"
               type="tel"
               value={formData.phone}
               onChange={handleChange}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Phone number"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="+91 98765 43210"
             />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
             <textarea
               name="address"
-              rows="3"
+              rows="2"
               value={formData.address}
               onChange={handleChange}
-              className="relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-[#B3541E] focus:border-[#B3541E]"
-              placeholder="Address"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E] transition-colors"
+              placeholder="Enter your address"
             />
           </div>
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#B3541E] hover:bg-[#9a4519] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B3541E]"
-            >
-              Create Account
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 
-
-
-// Dashboard Stats Component
-const AdminDashboardStats = ({ stats }) => {
-  const statCards = [
-    {
-      title: 'Total Orders',
-      value: stats.total_orders || 0,
-      icon: '🛒',
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Total Revenue',
-      value: `₹${stats.total_revenue || 0}`,
-      icon: '💰',
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Total Products',
-      value: stats.total_products || 0,
-      icon: '📦',
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Total Customers',
-      value: stats.total_users || 0,
-      icon: '👥',
-      color: 'bg-orange-500'
-    }
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-lg shadow-md p-6"
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-[#B3541E] to-[#9a4519] text-white py-3 rounded-xl font-semibold hover:from-[#9a4519] hover:to-[#7d3615] transition-all duration-300 shadow-lg"
           >
-            <div className="flex items-center">
-              <div className={`${stat.color} text-white p-3 rounded-lg mr-4`}>
-                <span className="text-xl">{stat.icon}</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            Create Account
+          </motion.button>
+        </form>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <button className="bg-[#B3541E] text-white p-4 rounded-lg hover:bg-[#9a4519] transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">➕</div>
-              <div>Add Product</div>
-            </div>
-          </button>
-          <button className="bg-[#362222] text-white p-4 rounded-lg hover:bg-gray-800 transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">📋</div>
-              <div>Add Category</div>
-            </div>
-          </button>
-          <button className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">🖼️</div>
-              <div>Manage Hero</div>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Admin Products Component
-const AdminProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [sizes, setSizes] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category_id: '',
-    subcategory_id: '',
-    price: '',
-    sizes: [],
-    is_customizable: false,
-    quantity: ''
-  });
-
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-    fetchSizes();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API}/products`);
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${API}/categories`);
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
-
-  const fetchSubcategories = async (categoryId) => {
-    try {
-      const response = await axios.get(`${API}/subcategories?category_id=${categoryId}`);
-      setSubcategories(response.data);
-    } catch (error) {
-      console.error('Failed to fetch subcategories:', error);
-    }
-  };
-
-  const fetchSizes = async () => {
-    try {
-      const response = await axios.get(`${API}/sizes`);
-      setSizes(response.data);
-    } catch (error) {
-      console.error('Failed to fetch sizes:', error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = localStorage.getItem('token');
-      const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity)
-      };
-
-      if (editingProduct) {
-        await axios.put(`${API}/products/${editingProduct.id}`, productData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Product updated successfully!');
-      } else {
-        await axios.post(`${API}/products`, productData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Product added successfully!');
-      }
-
-      setFormData({
-        title: '',
-        description: '',
-        category_id: '',
-        subcategory_id: '',
-        price: '',
-        sizes: [],
-        is_customizable: false,
-        quantity: ''
-      });
-      setShowAddForm(false);
-      setEditingProduct(null);
-      fetchProducts();
-    } catch (error) {
-      toast.error('Failed to save product');
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (productId) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${API}/products/${productId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success('Product deleted successfully!');
-      fetchProducts();
-    } catch (error) {
-      toast.error('Failed to delete product');
-    }
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setFormData({
-      title: product.title,
-      description: product.description,
-      category_id: product.category_id,
-      subcategory_id: product.subcategory_id || '',
-      price: product.price.toString(),
-      sizes: product.sizes,
-      is_customizable: product.is_customizable,
-      quantity: product.quantity.toString()
-    });
-    setShowAddForm(true);
-    if (product.category_id) {
-      fetchSubcategories(product.category_id);
-    }
-  };
-
-  const handleCategoryChange = (categoryId) => {
-    setFormData({ ...formData, category_id: categoryId, subcategory_id: '' });
-    if (categoryId) {
-      fetchSubcategories(categoryId);
-    }
-  };
-
-  const handleSizeToggle = (sizeName) => {
-    const newSizes = formData.sizes.includes(sizeName)
-      ? formData.sizes.filter(s => s !== sizeName)
-      : [...formData.sizes, sizeName];
-    setFormData({ ...formData, sizes: newSizes });
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Products Management</h2>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-[#B3541E] text-white px-4 py-2 rounded-md hover:bg-[#9a4519] transition-colors"
-        >
-          <PlusIcon className="h-5 w-5 inline mr-2" />
-          Add Product
-        </button>
-      </div>
-
-      {/* Add/Edit Product Form */}
-      {showAddForm && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingProduct ? 'Edit Product' : 'Add New Product'}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                <input
-                  type="number"
-                  required
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea
-                required
-                rows="3"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select
-                  required
-                  value={formData.category_id}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Subcategory</label>
-                <select
-                  value={formData.subcategory_id}
-                  onChange={(e) => setFormData({ ...formData, subcategory_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                >
-                  <option value="">Select Subcategory</option>
-                  {subcategories.map((subcategory) => (
-                    <option key={subcategory.id} value={subcategory.id}>
-                      {subcategory.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                <input
-                  type="number"
-                  required
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B3541E] focus:border-[#B3541E]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sizes</label>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size.id}
-                    type="button"
-                    onClick={() => handleSizeToggle(size.name)}
-                    className={`px-3 py-1 rounded-md border ${
-                      formData.sizes.includes(size.name)
-                        ? 'bg-[#B3541E] text-white border-[#B3541E]'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-[#B3541E]'
-                    }`}
-                  >
-                    {size.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="customizable"
-                checked={formData.is_customizable}
-                onChange={(e) => setFormData({ ...formData, is_customizable: e.target.checked })}
-                className="mr-2"
-              />
-              <label htmlFor="customizable" className="text-sm font-medium text-gray-700">
-                This product is customizable
-              </label>
-            </div>
-
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519] transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Add Product')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setEditingProduct(null);
-                  setFormData({
-                    title: '',
-                    description: '',
-                    category_id: '',
-                    subcategory_id: '',
-                    price: '',
-                    sizes: [],
-                    is_customizable: false,
-                    quantity: ''
-                  });
-                }}
-                className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Products List */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">All Products ({products.length})</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customizable
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          src={product.images[0] || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'}
-                          alt={product.title}
-                          className="h-12 w-12 object-cover rounded-md mr-4"
-                        />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{product.title}</div>
-                          <div className="text-sm text-gray-500">{product.description.slice(0, 50)}...</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{product.price}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.quantity}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        product.is_customizable 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {product.is_customizable ? 'Yes' : 'No'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-[#B3541E] hover:text-[#9a4519]"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Profile Page Component
-const ProfilePage = () => {
-  const { user } = useAppContext();
-  const [orders, setOrders] = useState([]);
-
-  useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please login to view your profile</p>
-          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]">
-            Login
+        <p className="mt-8 text-center text-gray-600">
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-[#B3541E] hover:text-[#9a4519] transition-colors">
+            Sign in
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#362222] mb-8">My Profile</h1>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* User Info */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Phone</label>
-                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Address</label>
-                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Member Since</label>
-                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-6">Order History</h2>
-              {orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No orders yet</p>
-                  <Link
-                    to="/products"
-                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
-                  >
-                    Start Shopping
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">₹{order.total_amount}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {order.items.length} item(s)
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Admin Wrapper Component
-const AdminWrapper = () => {
-  const { user } = useAppContext();
-  return <AdminDashboard user={user} />;
-};
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Phone</label>
-                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Address</label>
-                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Member Since</label>
-                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-6">Order History</h2>
-              {orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No orders yet</p>
-                  <Link
-                    to="/products"
-                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
-                  >
-                    Start Shopping
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">₹{order.total_amount}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {order.items.length} item(s)
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Profile Page Component
-const ProfilePage = () => {
-  const { user } = useAppContext();
-  const [orders, setOrders] = useState([]);
-
-  useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please login to view your profile</p>
-          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]">
-            Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#362222] mb-8">My Profile</h1>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* User Info */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Phone</label>
-                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Address</label>
-                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Member Since</label>
-                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-6">Order History</h2>
-              {orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No orders yet</p>
-                  <Link
-                    to="/products"
-                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
-                  >
-                    Start Shopping
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">₹{order.total_amount}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {order.items.length} item(s)
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Profile Page Component
-const ProfilePage = () => {
-  const { user } = useAppContext();
-  const [orders, setOrders] = useState([]);
-
-  useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please login to view your profile</p>
-          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]">
-            Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#362222] mb-8">My Profile</h1>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* User Info */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Phone</label>
-                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Address</label>
-                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Member Since</label>
-                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-6">Order History</h2>
-              {orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No orders yet</p>
-                  <Link
-                    to="/products"
-                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
-                  >
-                    Start Shopping
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">₹{order.total_amount}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {order.items.length} item(s)
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Profile Page Component
-const ProfilePage = () => {
-  const { user } = useAppContext();
-  const [orders, setOrders] = useState([]);
-
-  useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-12 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please login to view your profile</p>
-          <Link to="/login" className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]">
-            Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#362222] mb-8">My Profile</h1>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* User Info */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-[#B3541E] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Phone</label>
-                  <p className="text-gray-600">{user.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Address</label>
-                  <p className="text-gray-600">{user.address || 'Not provided'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Member Since</label>
-                  <p className="text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-6">Order History</h2>
-              {orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No orders yet</p>
-                  <Link
-                    to="/products"
-                    className="bg-[#B3541E] text-white px-6 py-2 rounded-md hover:bg-[#9a4519]"
-                  >
-                    Start Shopping
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">₹{order.total_amount}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {order.items.length} item(s)
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        </p>
+      </motion.div>
     </div>
   );
 };
@@ -2257,12 +1988,21 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<AdminWrapper />} />
           </Routes>
-          <Toaster position="top-right" />
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              duration: 4000,
+              style: {
+                borderRadius: '12px',
+              },
+            }}
+          />
         </div>
       </BrowserRouter>
     </AppProvider>
