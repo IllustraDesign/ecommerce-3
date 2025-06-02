@@ -528,7 +528,25 @@ const AdminProducts = () => {
               </div>
             </div>
 
-              <div>
+            {/* Customizable Option */}
+            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+              <input
+                type="checkbox"
+                id="customizable"
+                checked={formData.is_customizable}
+                onChange={(e) => setFormData({ ...formData, is_customizable: e.target.checked })}
+                className="w-5 h-5 text-[#B3541E] bg-gray-100 border-gray-300 rounded focus:ring-[#B3541E] focus:ring-2"
+              />
+              <label htmlFor="customizable" className="text-sm font-medium text-gray-700">
+                <span className="font-semibold">Allow customer customization</span>
+                <span className="block text-xs text-gray-500 mt-1">
+                  Customers can upload their own images for this product
+                </span>
+              </label>
+            </div>
+
+            {/* Product Images */}
+            <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#B3541E] transition-colors">
                   <CloudArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
