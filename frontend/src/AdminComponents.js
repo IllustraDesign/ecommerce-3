@@ -447,18 +447,53 @@ const AdminProducts = () => {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="customizable"
-                checked={formData.is_customizable}
-                onChange={(e) => setFormData({ ...formData, is_customizable: e.target.checked })}
-                className="mr-2"
-              />
-              <label htmlFor="customizable" className="text-sm font-medium text-gray-700">
-                This product is customizable
-              </label>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#B3541E] transition-colors">
+                  <CloudArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <div className="space-y-2">
+                    <p className="text-gray-600">Drag & drop images here, or click to select</p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      id="image-upload"
+                      onChange={(e) => handleImageUpload(e.target.files)}
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="inline-flex items-center px-4 py-2 bg-[#B3541E] text-white rounded-lg hover:bg-[#9a4519] cursor-pointer transition-colors"
+                    >
+                      <PhotoIcon className="h-5 w-5 mr-2" />
+                      Choose Images
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, WebP up to 5MB each</p>
+                </div>
+                
+                {/* Image Preview */}
+                {imageFiles.length > 0 && (
+                  <div className="mt-4 grid grid-cols-3 gap-4">
+                    {imageFiles.map((file, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={file.preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <XMarkIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
             <div className="flex space-x-4">
               <button
