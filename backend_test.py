@@ -2,7 +2,11 @@
 import requests
 import sys
 import uuid
+import os
+import base64
 from datetime import datetime
+from io import BytesIO
+from PIL import Image
 
 class IllustraDesignAPITester:
     def __init__(self, base_url="https://8ac0c223-0880-40af-ab0c-82a50ff379d3.preview.emergentagent.com"):
@@ -17,6 +21,7 @@ class IllustraDesignAPITester:
         self.test_size_id = None
         self.test_product_id = None
         self.test_order_id = None
+        self.uploaded_image_url = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, token=None, files=None):
         """Run a single API test"""
