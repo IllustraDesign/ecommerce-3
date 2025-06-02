@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 
 class IllustraDesignAPITester:
-    def __init__(self, base_url="https://ae7eb85d-9591-4143-a448-5d11ae9fdf91.preview.emergentagent.com"):
+    def __init__(self, base_url="https://8ac0c223-0880-40af-ab0c-82a50ff379d3.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
