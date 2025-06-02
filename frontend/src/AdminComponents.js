@@ -102,7 +102,7 @@ export const AdminDashboard = ({ user }) => {
 };
 
 // Dashboard Stats Component
-const AdminDashboardStats = ({ stats }) => {
+const AdminDashboardStats = ({ stats, setActiveTab }) => {
   const statCards = [
     {
       title: 'Total Orders',
