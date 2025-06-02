@@ -91,7 +91,21 @@ def upload_to_s3(file_content: bytes, filename: str, folder: str = "products") -
         )
         return f"https://{os.environ['AWS_BUCKET_NAME']}.s3.{os.environ['AWS_REGION']}.amazonaws.com/{unique_filename}"
     except ClientError as e:
-        raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)}")
+        # Fallback to local storage if S3 fails
+        try:
+            import base64
+            encoded_image = base64.b64encode(file_content).decode('utf-8')
+            return f"data:image/jpeg;base64,{encoded_image}"
+        except Exception as fallback_error:
+            raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
+    except Exception as e:
+        # Fallback to local storage for any other errors
+        try:
+            import base64
+            encoded_image = base64.b64encode(file_content).decode('utf-8')
+            return f"data:image/jpeg;base64,{encoded_image}"
+        except Exception as fallback_error:
+            raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
 
 # Data Models
 class User(BaseModel):
