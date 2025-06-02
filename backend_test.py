@@ -572,58 +572,70 @@ class IllustraDesignAPITester:
             print("❌ Required data not available, skipping test")
             return False
             
-        # 1. Add item to cart
-        success, response = self.run_test(
-            "Add to Cart for Checkout",
-            "POST",
-            "api/cart/items",
-            200,  # API returns 200 instead of 201
-            data={
-                "product_id": self.test_product_id,
-                "quantity": 1,
-                "size": "M"
-            },
-            token=self.admin_token
-        )
+        # 1. Add item to cart using form data
+        url = f"{self.base_url}/api/cart/items"
+        headers = {'Authorization': f'Bearer {self.admin_token}'}
+        form_data = {
+            'product_id': self.test_product_id,
+            'quantity': '1',
+            'size': 'M'
+        }
         
-        if not success:
-            return False
+        print("\n🔍 Testing Add to Cart for Checkout...")
+        self.tests_run += 1
+        
+        try:
+            response = requests.post(url, headers=headers, data=form_data)
             
-        print(f"✅ Added item to cart for checkout")
-        
-        # 2. Create order (checkout)
-        success, response = self.run_test(
-            "Complete Checkout",
-            "POST",
-            "api/orders",
-            200,  # API returns 200 instead of 201
-            data={
-                "billing_address": "456 Checkout St, Test City, TS 12345",
-                "phone": "9876543210"
-            },
-            token=self.admin_token
-        )
-        
-        if not success:
-            return False
-            
-        order_id = response.get("id")
-        print(f"✅ Checkout completed successfully, order created with ID: {order_id}")
-        
-        # 3. Verify cart is empty after checkout
-        success, response = self.run_test(
-            "Verify Cart Empty After Checkout",
-            "GET",
-            "api/cart",
-            200,
-            token=self.admin_token
-        )
-        
-        if success and len(response) == 0:
-            print(f"✅ Cart is empty after checkout as expected")
-            return True
-        else:
-            print(f"❌ Cart is not empty after checkout")
+            if response.status_code == 200 or response.status_code == 201:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                print(f"✅ Added item to cart for checkout")
+                
+                # 2. Create order (checkout)
+                success, response = self.run_test(
+                    "Complete Checkout",
+                    "POST",
+                    "api/orders",
+                    200,  # API returns 200 instead of 201
+                    data={
+                        "billing_address": "456 Checkout St, Test City, TS 12345",
+                        "phone": "9876543210"
+                    },
+                    token=self.admin_token
+                )
+                
+                if not success:
+                    return False
+                    
+                order_id = response.get("id")
+                print(f"✅ Checkout completed successfully, order created with ID: {order_id}")
+                
+                # 3. Verify cart is empty after checkout
+                success, response = self.run_test(
+                    "Verify Cart Empty After Checkout",
+                    "GET",
+                    "api/cart",
+                    200,
+                    token=self.admin_token
+                )
+                
+                if success and len(response) == 0:
+                    print(f"✅ Cart is empty after checkout as expected")
+                    return True
+                else:
+                    print(f"❌ Cart is not empty after checkout")
+                    return False
+            else:
+                print(f"❌ Failed - Expected 200/201, got {response.status_code}")
+                try:
+                    print(f"Response: {response.json() if response.text else 'No content'}")
+                except:
+                    print(f"Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
             return False
 
 def main():
