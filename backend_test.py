@@ -281,41 +281,65 @@ class IllustraDesignAPITester:
             print("❌ Required data not available, skipping test")
             return False
             
-        # Create a test order (first we need to create a cart)
-        success, response = self.run_test(
-            "Create Order",
-            "POST",
-            "api/orders",
-            201,
-            data={
-                "billing_address": "123 Test St, Test City, TS 12345",
-                "phone": "1234567890"
-            },
-            token=self.admin_token
-        )
+        # First add an item to the cart
+        url = f"{self.base_url}/api/cart/items"
+        headers = {'Authorization': f'Bearer {self.admin_token}'}
+        form_data = {
+            'product_id': self.test_product_id,
+            'quantity': '1',
+            'size': 'M'
+        }
         
-        if not success:
-            return False
+        print("\n🔍 Testing Order Management - Adding to Cart...")
+        
+        try:
+            response = requests.post(url, headers=headers, data=form_data)
             
-        self.test_order_id = response.get("id")
-        print(f"✅ Created order with ID: {self.test_order_id}")
-        
-        # Update order status
-        success, response = self.run_test(
-            "Update Order Status",
-            "PUT",
-            f"api/orders/{self.test_order_id}/status",
-            200,
-            data={"status": "dispatched"},
-            token=self.admin_token
-        )
-        
-        if not success:
-            return False
+            if response.status_code != 200 and response.status_code != 201:
+                print(f"❌ Failed to add item to cart - Status: {response.status_code}")
+                return False
+                
+            print(f"✅ Added item to cart for order management")
             
-        print(f"✅ Updated order status successfully")
-        
-        return True
+            # Create a test order
+            success, response = self.run_test(
+                "Create Order",
+                "POST",
+                "api/orders",
+                200,
+                data={
+                    "billing_address": "123 Test St, Test City, TS 12345",
+                    "phone": "1234567890"
+                },
+                token=self.admin_token
+            )
+            
+            if not success:
+                return False
+                
+            self.test_order_id = response.get("id")
+            print(f"✅ Created order with ID: {self.test_order_id}")
+            
+            # Update order status
+            success, response = self.run_test(
+                "Update Order Status",
+                "PUT",
+                f"api/orders/{self.test_order_id}/status",
+                200,
+                data={"status": "dispatched"},
+                token=self.admin_token
+            )
+            
+            if not success:
+                return False
+                
+            print(f"✅ Updated order status successfully")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False
 
     def test_cart_functionality(self):
         """Test cart functionality"""
