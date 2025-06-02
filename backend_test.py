@@ -430,6 +430,127 @@ class IllustraDesignAPITester:
             print(f"✅ Deleted product successfully")
             return True
         return False
+        
+    def create_test_image(self):
+        """Create a test image for upload testing"""
+        # Create a simple test image
+        img = Image.new('RGB', (100, 100), color = (73, 109, 137))
+        img_io = BytesIO()
+        img.save(img_io, 'JPEG')
+        img_io.seek(0)
+        return img_io
+        
+    def test_image_upload_fallback(self):
+        """Test image upload with fallback system"""
+        if not self.admin_token:
+            print("❌ Admin token not available, skipping test")
+            return False
+            
+        # Create a test image
+        img_io = self.create_test_image()
+        
+        # Test image upload
+        files = {'file': ('test_image.jpg', img_io, 'image/jpeg')}
+        data = {'folder': 'test'}
+        
+        url = f"{self.base_url}/api/upload-image"
+        headers = {'Authorization': f'Bearer {self.admin_token}'}
+        
+        print("\n🔍 Testing Image Upload with Fallback...")
+        self.tests_run += 1
+        
+        try:
+            response = requests.post(url, headers=headers, files=files, data=data)
+            
+            if response.status_code == 200:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                
+                response_data = response.json()
+                image_url = response_data.get('image_url', '')
+                
+                # Check if it's a base64 image (fallback) or S3 URL
+                if image_url.startswith('data:image/jpeg;base64,'):
+                    print("✅ Image upload fallback to base64 is working")
+                    # Verify it's a valid base64 image
+                    try:
+                        # Extract the base64 part
+                        base64_data = image_url.split(',')[1]
+                        # Try to decode it
+                        base64.b64decode(base64_data)
+                        print("✅ Valid base64 image data")
+                    except:
+                        print("❌ Invalid base64 image data")
+                        return False
+                elif image_url.startswith('https://'):
+                    print("✅ Image uploaded to S3 successfully")
+                else:
+                    print("❌ Unexpected image URL format")
+                    return False
+                
+                self.uploaded_image_url = image_url
+                return True
+            else:
+                print(f"❌ Failed - Expected 200, got {response.status_code}")
+                try:
+                    print(f"Response: {response.json() if response.text else 'No content'}")
+                except:
+                    print(f"Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False
+            
+    def test_product_image_upload(self):
+        """Test adding an image to a product"""
+        if not self.admin_token or not self.test_product_id:
+            print("❌ Required data not available, skipping test")
+            return False
+            
+        # Create a test image
+        img_io = self.create_test_image()
+        
+        # Test product image upload
+        files = {'file': ('product_image.jpg', img_io, 'image/jpeg')}
+        
+        url = f"{self.base_url}/api/products/{self.test_product_id}/add-image"
+        headers = {'Authorization': f'Bearer {self.admin_token}'}
+        
+        print("\n🔍 Testing Product Image Upload...")
+        self.tests_run += 1
+        
+        try:
+            response = requests.post(url, headers=headers, files=files)
+            
+            if response.status_code == 200:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                
+                response_data = response.json()
+                image_url = response_data.get('image_url', '')
+                
+                # Check if it's a base64 image (fallback) or S3 URL
+                if image_url.startswith('data:image/jpeg;base64,'):
+                    print("✅ Product image upload fallback to base64 is working")
+                elif image_url.startswith('https://'):
+                    print("✅ Product image uploaded to S3 successfully")
+                else:
+                    print("❌ Unexpected image URL format")
+                    return False
+                
+                return True
+            else:
+                print(f"❌ Failed - Expected 200, got {response.status_code}")
+                try:
+                    print(f"Response: {response.json() if response.text else 'No content'}")
+                except:
+                    print(f"Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False
 
     def test_checkout_flow(self):
         """Test the complete checkout flow"""
