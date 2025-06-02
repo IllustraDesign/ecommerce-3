@@ -190,6 +190,8 @@ const AdminProducts = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
