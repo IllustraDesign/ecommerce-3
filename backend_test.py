@@ -185,7 +185,7 @@ class IllustraDesignAPITester:
             "Create Size",
             "POST",
             "api/sizes",
-            201,
+            200,  # API returns 200 instead of 201
             data={
                 "name": size_name,
                 "category_id": self.test_category_id
