@@ -253,14 +253,17 @@ const AdminProducts = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Upload images first
-      const uploadedImageUrls = await uploadImages();
+      // Upload images first if any are selected
+      let uploadedImageUrls = [];
+      if (imageFiles.length > 0) {
+        uploadedImageUrls = await uploadImages();
+      }
       
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity),
-        images: uploadedImageUrls
+        images: uploadedImageUrls.length > 0 ? uploadedImageUrls : (editingProduct ? editingProduct.images : [])
       };
 
       if (editingProduct) {
