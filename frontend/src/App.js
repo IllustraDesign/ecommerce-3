@@ -1411,6 +1411,8 @@ const CartPage = () => {
 // Enhanced Checkout Page
 const CheckoutPage = () => {
   const { cart, user } = useAppContext();
+  const [products, setProducts] = useState([]);
+  const [customImages, setCustomImages] = useState({});
   const [formData, setFormData] = useState({
     billingAddress: '',
     phone: '',
@@ -1418,21 +1420,107 @@ const CheckoutPage = () => {
     shippingOption: 'standard'
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchProductDetails();
+  }, [cart]);
+
+  const fetchProductDetails = async () => {
+    try {
+      const productPromises = cart.map(item => 
+        axios.get(`${API}/products/${item.product_id}`)
+      );
+      const responses = await Promise.all(productPromises);
+      setProducts(responses.map(response => response.data));
+    } catch (error) {
+      console.error('Failed to fetch product details:', error);
+    }
+  };
+
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + (599 * item.quantity), 0);
+    return cart.reduce((total, item) => {
+      const product = products.find(p => p.id === item.product_id);
+      return total + ((product?.price || 599) * item.quantity);
+    }, 0);
+  };
+
+  const handleCustomImageUpload = (cartItemId, file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCustomImages(prev => ({
+          ...prev,
+          [cartItemId]: e.target.result
+        }));
+        toast.success('Custom image uploaded! 🎨');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeCustomImage = (cartItemId) => {
+    setCustomImages(prev => {
+      const newImages = { ...prev };
+      delete newImages[cartItemId];
+      return newImages;
+    });
+    toast.success('Custom image removed');
+  };
+
+  const uploadCustomImagesToServer = async () => {
+    const uploadPromises = Object.entries(customImages).map(async ([cartItemId, imageData]) => {
+      try {
+        // Convert base64 to blob
+        const response = await fetch(imageData);
+        const blob = await response.blob();
+        
+        const formData = new FormData();
+        formData.append('file', blob, `custom-${cartItemId}.jpg`);
+        formData.append('folder', 'custom');
+        
+        const token = localStorage.getItem('token');
+        const uploadResponse = await axios.post(`${API}/upload-image`, formData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        return { cartItemId, imageUrl: uploadResponse.data.image_url };
+      } catch (error) {
+        console.error('Failed to upload custom image:', error);
+        return { cartItemId, imageUrl: imageData }; // Use base64 as fallback
+      }
+    });
+
+    return await Promise.all(uploadPromises);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
+    setUploadingImages(true);
 
     try {
+      // Upload custom images first
+      const uploadedImages = await uploadCustomImagesToServer();
+      
+      // Update cart items with custom image URLs
+      const updatedCartItems = cart.map(item => {
+        const customImage = uploadedImages.find(img => img.cartItemId === item.id);
+        return {
+          ...item,
+          custom_image_url: customImage?.imageUrl || null
+        };
+      });
+
       const token = localStorage.getItem('token');
       const response = await axios.post(`${API}/orders`, {
         billing_address: formData.billingAddress,
-        phone: formData.phone
+        phone: formData.phone,
+        custom_items: updatedCartItems
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -1448,8 +1536,10 @@ const CheckoutPage = () => {
       navigate('/profile');
     } catch (error) {
       toast.error('Failed to place order. Please try again.');
+      console.error('Checkout error:', error);
     } finally {
       setIsProcessing(false);
+      setUploadingImages(false);
     }
   };
 
