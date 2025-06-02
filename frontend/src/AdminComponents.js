@@ -338,6 +338,56 @@ const AdminProducts = () => {
     setFormData({ ...formData, sizes: newSizes });
   };
 
+  const handleImageUpload = (files) => {
+    const newFiles = Array.from(files).map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    setImageFiles(prev => [...prev, ...newFiles]);
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prev => {
+      const newFiles = [...prev];
+      URL.revokeObjectURL(newFiles[index].preview);
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
+  };
+
+  const uploadImages = async () => {
+    if (imageFiles.length === 0) return [];
+    
+    setUploadingImages(true);
+    const uploadedUrls = [];
+    
+    try {
+      for (const imageFile of imageFiles) {
+        const formData = new FormData();
+        formData.append('file', imageFile.file);
+        formData.append('folder', 'products');
+        
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${API}/upload-image`, formData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        uploadedUrls.push(response.data.image_url);
+      }
+      
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      toast.error('Failed to upload images');
+      return [];
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
