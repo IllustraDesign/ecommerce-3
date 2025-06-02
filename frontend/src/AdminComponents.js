@@ -154,29 +154,51 @@ const AdminDashboardStats = ({ stats }) => {
         ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <button className="bg-[#B3541E] text-white p-4 rounded-lg hover:bg-[#9a4519] transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">➕</div>
-              <div>Add Product</div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Quick Actions</h3>
+              </div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('products')}
+                  className="bg-gradient-to-br from-primary-600 to-accent-600 text-white p-6 rounded-2xl hover:shadow-elegant-lg transition-all duration-300"
+                >
+                  <div className="text-center space-y-3">
+                    <div className="text-3xl">➕</div>
+                    <div className="font-medium">Add Product</div>
+                    <div className="text-xs opacity-80">Create new product listing</div>
+                  </div>
+                </motion.button>
+                
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('categories')}
+                  className="bg-gradient-to-br from-neutral-700 to-neutral-800 text-white p-6 rounded-2xl hover:shadow-elegant-lg transition-all duration-300"
+                >
+                  <div className="text-center space-y-3">
+                    <div className="text-3xl">📋</div>
+                    <div className="font-medium">Add Category</div>
+                    <div className="text-xs opacity-80">Organize your products</div>
+                  </div>
+                </motion.button>
+                
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('orders')}
+                  className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-2xl hover:shadow-elegant-lg transition-all duration-300"
+                >
+                  <div className="text-center space-y-3">
+                    <div className="text-3xl">📦</div>
+                    <div className="font-medium">Manage Orders</div>
+                    <div className="text-xs opacity-80">Process customer orders</div>
+                  </div>
+                </motion.button>
+              </div>
             </div>
-          </button>
-          <button className="bg-[#362222] text-white p-4 rounded-lg hover:bg-gray-800 transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">📋</div>
-              <div>Add Category</div>
-            </div>
-          </button>
-          <button className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
-            <div className="text-center">
-              <div className="text-2xl mb-2">🖼️</div>
-              <div>Manage Hero</div>
-            </div>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
