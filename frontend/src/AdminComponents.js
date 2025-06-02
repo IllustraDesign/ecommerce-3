@@ -89,7 +89,7 @@ export const AdminDashboard = ({ user }) => {
 
           {/* Main Content */}
           <div className="lg:col-span-5">
-            {activeTab === 'dashboard' && <AdminDashboardStats stats={stats} />}
+            {activeTab === 'dashboard' && <AdminDashboardStats stats={stats} setActiveTab={setActiveTab} />}
             {activeTab === 'products' && <AdminProducts />}
             {activeTab === 'categories' && <AdminCategories />}
             {activeTab === 'orders' && <AdminOrders />}
