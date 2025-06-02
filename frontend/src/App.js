@@ -1616,6 +1616,112 @@ const CheckoutPage = () => {
               </div>
             </motion.div>
 
+            {/* Product Customization Section */}
+            {cart.some((item, index) => products[index]?.is_customizable) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-3xl shadow-lg p-8"
+              >
+                <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                  <PhotoIcon className="h-7 w-7 text-[#B3541E] mr-3" />
+                  Product Customization
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Upload your custom designs for the products that support customization.
+                </p>
+                
+                <div className="space-y-6">
+                  {cart.map((item, index) => {
+                    const product = products[index];
+                    if (!product?.is_customizable) return null;
+                    
+                    return (
+                      <div key={item.id} className="border border-gray-200 rounded-xl p-6">
+                        <div className="flex items-start space-x-4 mb-4">
+                          <img
+                            src={product.images[0] || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'}
+                            alt={product.title}
+                            className="w-16 h-16 object-cover rounded-lg"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-800">{product.title}</h3>
+                            <p className="text-sm text-gray-600">Size: {item.size || 'Standard'}</p>
+                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                          </div>
+                          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            Customizable
+                          </div>
+                        </div>
+                        
+                        {customImages[item.id] ? (
+                          <div className="relative">
+                            <img
+                              src={customImages[item.id]}
+                              alt="Custom design"
+                              className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeCustomImage(item.id)}
+                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                            >
+                              <XMarkIcon className="h-4 w-4" />
+                            </button>
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                              Custom Design Uploaded ✨
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#B3541E] transition-colors">
+                            <CloudArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="space-y-2">
+                              <p className="text-gray-600">Upload your custom design for this product</p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id={`custom-image-${item.id}`}
+                                onChange={(e) => handleCustomImageUpload(item.id, e.target.files[0])}
+                              />
+                              <label
+                                htmlFor={`custom-image-${item.id}`}
+                                className="inline-flex items-center px-4 py-2 bg-[#B3541E] text-white rounded-lg hover:bg-[#9a4519] cursor-pointer transition-colors"
+                              >
+                                <PhotoIcon className="h-5 w-5 mr-2" />
+                                Choose Design
+                              </label>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3">
+                              Recommended: 300 DPI, PNG/JPG format, up to 10MB
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <PhotoIcon className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-blue-800 mb-1">Customization Guidelines</h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• High resolution images (300 DPI) for best print quality</li>
+                        <li>• CMYK color mode preferred for accurate color reproduction</li>
+                        <li>• Add 3mm bleed area around your design if edge-to-edge printing</li>
+                        <li>• Our design team will review and optimize your files before printing</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Shipping Options */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
