@@ -252,24 +252,42 @@ const AdminProducts = () => {
 
     try {
       const token = localStorage.getItem('token');
+      
+      // Upload images first
+      const uploadedImageUrls = await uploadImages();
+      
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity)
+        quantity: parseInt(formData.quantity),
+        images: uploadedImageUrls
       };
 
       if (editingProduct) {
         await axios.put(`${API}/products/${editingProduct.id}`, productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Product updated successfully!');
+        toast.success('Product updated successfully! 🎉', {
+          style: {
+            borderRadius: '12px',
+            background: '#10b981',
+            color: '#fff',
+          },
+        });
       } else {
         await axios.post(`${API}/products`, productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Product added successfully!');
+        toast.success('Product added successfully! ✨', {
+          style: {
+            borderRadius: '12px',
+            background: '#10b981',
+            color: '#fff',
+          },
+        });
       }
 
+      // Reset form
       setFormData({
         title: '',
         description: '',
@@ -280,6 +298,7 @@ const AdminProducts = () => {
         is_customizable: false,
         quantity: ''
       });
+      setImageFiles([]);
       setShowAddForm(false);
       setEditingProduct(null);
       fetchProducts();
