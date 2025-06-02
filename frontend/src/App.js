@@ -1859,7 +1859,9 @@ const CheckoutPage = () => {
                 {isProcessing ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                    <span>Processing...</span>
+                    <span>
+                      {uploadingImages ? 'Uploading custom designs...' : 'Processing order...'}
+                    </span>
                   </div>
                 ) : (
                   'Place Order'
