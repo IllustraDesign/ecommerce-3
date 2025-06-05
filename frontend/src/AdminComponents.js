@@ -274,13 +274,15 @@ const AdminProducts = () => {
 
     try {
       const token = localStorage.getItem('token');
-      
+      // Debug: log imageFiles before upload
+      console.log('handleSubmit: imageFiles', imageFiles);
       // Upload images first if any are selected
       let uploadedImageUrls = [];
       if (imageFiles.length > 0) {
         uploadedImageUrls = await uploadImages();
       }
-      
+      // Debug: log uploadedImageUrls after upload
+      console.log('handleSubmit: uploadedImageUrls', uploadedImageUrls);
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
@@ -419,9 +421,13 @@ const AdminProducts = () => {
           }
         });
         
+        // Debug: log response from /api/upload-image
+        console.log('uploadImages: response', response);
         uploadedUrls.push(response.data.image_url);
       }
       
+      // Debug: log uploadedUrls before return
+      console.log('uploadImages: uploadedUrls', uploadedUrls);
       return uploadedUrls;
     } catch (error) {
       console.error('Image upload failed:', error);

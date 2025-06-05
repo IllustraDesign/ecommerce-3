@@ -89,22 +89,29 @@ def upload_to_s3(file_content: bytes, filename: str, folder: str = "products") -
             Body=file_content,
             ContentType='image/jpeg'
         )
+        print(f"[S3 UPLOAD SUCCESS] {unique_filename}")
         return f"https://{os.environ['AWS_BUCKET_NAME']}.s3.{os.environ['AWS_REGION']}.amazonaws.com/{unique_filename}"
     except ClientError as e:
+        print(f"[S3 UPLOAD ERROR] {e}")
         # Fallback to local storage if S3 fails
         try:
             import base64
             encoded_image = base64.b64encode(file_content).decode('utf-8')
+            print("[FALLBACK] Returning base64 image string due to S3 error.")
             return f"data:image/jpeg;base64,{encoded_image}"
         except Exception as fallback_error:
+            print(f"[FALLBACK ERROR] {fallback_error}")
             raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
     except Exception as e:
+        print(f"[S3 UPLOAD GENERAL ERROR] {e}")
         # Fallback to local storage for any other errors
         try:
             import base64
             encoded_image = base64.b64encode(file_content).decode('utf-8')
+            print("[FALLBACK] Returning base64 image string due to general error.")
             return f"data:image/jpeg;base64,{encoded_image}"
         except Exception as fallback_error:
+            print(f"[FALLBACK ERROR] {fallback_error}")
             raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
 
 # Data Models
@@ -168,6 +175,7 @@ class ProductCreate(BaseModel):
     subcategory_id: Optional[str] = None
     price: float
     sizes: List[str] = []
+    images: List[str] = []  # <-- Add this line to accept images
     is_customizable: bool = False
     quantity: int = 0
 
