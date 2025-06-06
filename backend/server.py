@@ -355,6 +355,25 @@ async def delete_product(product_id: str, current_user: dict = Depends(get_curre
     if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
+    # Retrieve product to get image URLs
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Delete images from S3 if they are S3 URLs
+    for image_url in product.get("images", []):
+        try:
+            bucket = os.environ['AWS_BUCKET_NAME']
+            region = os.environ['AWS_REGION']
+            s3_prefix = f"https://{bucket}.s3.{region}.amazonaws.com/"
+            if image_url.startswith(s3_prefix):
+                key = image_url[len(s3_prefix):]
+                s3_client.delete_object(Bucket=bucket, Key=key)
+                print(f"[S3 DELETE SUCCESS] {key}")
+        except Exception as e:
+            print(f"[S3 DELETE ERROR] {e}")
+    
+    # Delete product from DB
     result = await db.products.delete_one({"id": product_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
