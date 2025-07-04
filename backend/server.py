@@ -735,6 +735,28 @@ async def initialize_demo_data():
     
     return {"message": "Demo data initialized successfully"}
 
+# Razorpay order creation endpoint
+@api_router.post("/create-razorpay-order")
+async def create_razorpay_order(data: dict, current_user: dict = Depends(get_current_user)):
+    import razorpay
+    amount = data.get("amount")
+    if not amount:
+        raise HTTPException(status_code=400, detail="Amount is required")
+    try:
+        client = razorpay.Client(auth=(os.environ["RAZORPAY_KEY_ID"], os.environ["RAZORPAY_KEY_SECRET"]))
+        order = client.order.create({
+            "amount": int(amount),
+            "currency": "INR",
+            "payment_capture": 1
+        })
+        return {
+            "order_id": order["id"],
+            "razorpay_key": os.environ["RAZORPAY_KEY_ID"]
+        }
+    except Exception as e:
+        print("[RAZORPAY ERROR]", e)
+        raise HTTPException(status_code=500, detail="Failed to create Razorpay order")
+
 # Include the router in the main app
 app.include_router(api_router)
 

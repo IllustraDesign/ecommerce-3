@@ -767,8 +767,8 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                      <span>Adding to Cart...</span>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Adding...</span>
                     </div>
                   ) : (
                     'Add to Cart'
@@ -1020,13 +1020,13 @@ const HomePage = () => {
               <h3 className="font-semibold mb-6 text-lg">Contact Info</h3>
               <div className="space-y-4 text-gray-300">
                 <div className="flex items-center space-x-3">
-                  <span>info@illustradesign.com</span>
+                  <span>illustradesignstudio25@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>+91 98765 43210</span>
+                  <span>+91 89518 29727</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>Mumbai, India</span>
+                  <span>Bengaluru, Karnataka</span>
                 </div>
               </div>
             </div>
@@ -1246,7 +1246,7 @@ const CartPage = () => {
             className="bg-white rounded-3xl shadow-lg p-16 text-center"
           >
             <div className="text-8xl mb-6">🛒</div>
-            <h2 className="text-3xl font-semibold text-gray-600 mb-4">Your cart is empty</h2>
+            <h2 className="text-3xl font-semibold mb-4">Your cart is empty</h2>
             <p className="text-gray-500 mb-8 text-lg">Discover our amazing products and add them to your cart!</p>
             <Link
               to="/products"
@@ -1379,6 +1379,16 @@ const CheckoutPage = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const navigate = useNavigate();
 
+  // Razorpay script loader
+  useEffect(() => {
+    if (!window.Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProductDetails();
   }, [cart]);
@@ -1454,15 +1464,13 @@ const CheckoutPage = () => {
     return await Promise.all(uploadPromises);
   };
 
-  const handleSubmit = async (e) => {
+  const handleRazorpayPayment = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
     setUploadingImages(true);
-
     try {
       // Upload custom images first
       const uploadedImages = await uploadCustomImagesToServer();
-      
       // Update cart items with custom image URLs
       const updatedCartItems = cart.map(item => {
         const customImage = uploadedImages.find(img => img.cartItemId === item.id);
@@ -1471,28 +1479,60 @@ const CheckoutPage = () => {
           custom_image_url: customImage?.imageUrl || null
         };
       });
-
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API}/orders`, {
-        billing_address: formData.billingAddress,
-        phone: formData.phone,
-        custom_items: updatedCartItems
+      // 1. Create Razorpay order on backend
+      const orderAmount = getTotalPrice() + Math.round(getTotalPrice() * 0.18); // include tax
+      const razorpayOrderRes = await axios.post(`${API}/create-razorpay-order`, {
+        amount: orderAmount * 100 // in paise
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      toast.success('Order placed successfully! 🎉', {
-        style: {
-          borderRadius: '12px',
-          background: '#10b981',
-          color: '#fff',
+      const { order_id, razorpay_key } = razorpayOrderRes.data;
+      // 2. Open Razorpay modal
+      const options = {
+        key: razorpay_key,
+        amount: orderAmount * 100,
+        currency: 'INR',
+        name: 'IllustraDesign Studio',
+        description: 'Order Payment',
+        order_id: order_id,
+        handler: async function (response) {
+          // 3. On payment success, create order in backend
+          try {
+            await axios.post(`${API}/orders`, {
+              billing_address: formData.billingAddress,
+              phone: formData.phone,
+              custom_items: updatedCartItems,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Order placed successfully! 🎉', {
+              style: {
+                borderRadius: '12px',
+                background: '#10b981',
+                color: '#fff',
+              },
+            });
+            navigate('/profile');
+          } catch (error) {
+            toast.error('Order creation failed after payment. Please contact support.');
+          }
         },
-      });
-
-      navigate('/profile');
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: formData.phone
+        },
+        theme: { color: '#B3541E' }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      toast.error('Failed to place order. Please try again.');
-      console.error('Checkout error:', error);
+      toast.error('Payment initiation failed. Please try again.');
+      console.error('Razorpay error:', error);
     } finally {
       setIsProcessing(false);
       setUploadingImages(false);
@@ -1536,7 +1576,7 @@ const CheckoutPage = () => {
           Checkout
         </motion.h1>
 
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+        <form onSubmit={handleRazorpayPayment} className="grid lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-8">
             {/* Billing Information */}
