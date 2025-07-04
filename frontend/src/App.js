@@ -221,45 +221,36 @@ const Navigation = () => {
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <nav className="nav-elegant fixed w-full top-0 z-50 shadow-elegant">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+    <nav id="nav-main" className="nav-elegant fixed w-full top-0 z-50 shadow-elegant">
+      <div id="nav-container" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="nav-flex" className="flex justify-between items-center h-20">
           {/* Elegant Logo */}
-          <Link to="/" className="flex items-center space-x-4 group">
-            <div className="relative logo-float">
-              <div className="w-14 h-14 bg-gradient-elegant-bg rounded-2xl flex items-center justify-center shadow-elegant group-hover:shadow-elegant-lg transition-all duration-300">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-primary-600">
-                  <path d="M12 2L13.5 8.5L20 9.5L13.5 10.5L12 17L10.5 10.5L4 9.5L10.5 8.5L12 2Z" fill="currentColor"/>
-                  <path d="M19 15L19.75 17.25L22 18L19.75 18.75L19 21L18.25 18.75L16 18L18.25 17.25L19 15Z" fill="currentColor"/>
-                </svg>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center">
-                <span className="text-2xl font-serif font-semibold text-gradient-elegant">
-                  illustra
-                </span>
-                <span className="text-2xl font-serif font-semibold text-accent-600 ml-1">Design</span>
-              </div>
-              <span className="text-xs font-sans font-medium tracking-elegant-wide text-neutral-500 -mt-1">STUDIO</span>
-            </div>
+          <Link id="nav-logo-link" to="/" className="flex items-center group">
+            <img
+              id="nav-logo-img"
+              src={require('./images/FINAL-DESIGN-LOGO.png')}
+              alt="IllustraDesign Studio Logo"
+              className="h-14 w-auto object-contain"
+              style={{ display: 'block' }}
+            />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-10">
-            <Link to="/" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
+          <div id="nav-desktop-links" className="hidden md:flex items-center space-x-10">
+            <Link id="nav-link-home" to="/" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link to="/products" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
+            <Link id="nav-link-collection" to="/products" className="text-neutral-700 hover:text-primary-600 transition-all duration-300 font-medium relative group font-sans">
               Collection
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
             
-            <Link to="/cart" className="relative p-3 text-neutral-700 hover:text-primary-600 transition-all duration-300 group">
+            <Link id="nav-link-cart" to="/cart" className="relative p-3 text-neutral-700 hover:text-primary-600 transition-all duration-300 group">
               <ShoppingCartIcon className="h-6 w-6" />
               {cartItemCount > 0 && (
                 <motion.span
+                  id="nav-cart-count"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   className="absolute -top-1 -right-1 bg-accent-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-semibold shadow-elegant"
@@ -308,8 +299,9 @@ const Navigation = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div id="nav-mobile-menu-btn" className="md:hidden">
             <button
+              id="nav-mobile-toggle"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-neutral-700 hover:text-primary-600 transition-all duration-300"
             >
@@ -322,12 +314,13 @@ const Navigation = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
+              id="nav-mobile-menu"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden border-t border-neutral-200"
             >
-              <div className="px-2 pt-4 pb-4 space-y-3 bg-white rounded-b-2xl">
+              <div id="nav-mobile-links" className="px-2 pt-4 pb-4 space-y-3 bg-white rounded-b-2xl">
                 <Link to="/" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Home</Link>
                 <Link to="/products" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">Collection</Link>
                 <Link to="/cart" className="block px-4 py-3 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium font-sans">
@@ -381,12 +374,12 @@ const HeroSection = () => {
       // Elegant fallback hero images
       setHeroImages([
         {
-          image_url: "https://images.unsplash.com/photo-1503694978374-8a2fa686963a",
+          image_url: require('./images/hero1.jpeg'),
           title: "Crafting Visual Excellence",
           subtitle: "Where artistry meets precision in every design"
         },
         {
-          image_url: "https://images.pexels.com/photos/9324380/pexels-photo-9324380.jpeg",
+          image_url: require('./images/hero2.jpeg'),
           title: "Bespoke Design Solutions",
           subtitle: "Tailored creativity for discerning clients"
         }
@@ -406,9 +399,10 @@ const HeroSection = () => {
   if (heroImages.length === 0) return null;
 
   return (
-    <div className="relative h-screen overflow-hidden hero-elegant">
+    <div id="hero-section" className="relative h-screen overflow-hidden hero-elegant">
       <AnimatePresence mode="wait">
         <motion.div
+          id="hero-bg-motion"
           key={currentSlide}
           initial={{ opacity: 0, scale: 1.02 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -417,107 +411,78 @@ const HeroSection = () => {
           className="absolute inset-0"
         >
           <div
+            id="hero-bg-image"
             className="h-full bg-cover bg-center bg-no-repeat relative"
-            style={{ backgroundImage: `url(${heroImages[currentSlide]?.image_url})` }}
           >
-            {/* Elegant overlay */}
-            <div className="absolute inset-0 overlay-elegant"></div>
-            
             {/* Decorative elements */}
-            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary-300 rounded-full opacity-60 animate-pulse"></div>
-            <div className="absolute bottom-1/3 right-1/3 w-1 h-1 bg-accent-300 rounded-full opacity-40 animate-pulse delay-1000"></div>
-            
-            <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
+            <div id="hero-deco-1" className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-300 rounded-full opacity-60 animate-pulse"></div>
+            <div id="hero-deco-2" className="absolute bottom-1/3 right-1/3 w-1 h-1 bg-green-300 rounded-full opacity-40 animate-pulse delay-1000"></div>
+            <div id="hero-content-container" className="relative z-10 h-full flex items-center justify-end text-white px-1">
               <motion.div
+                id="hero-content"
                 initial={{ y: 60, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6, duration: 1, ease: [0.4, 0, 0.2, 1] }}
-                className="max-w-6xl mx-auto"
+                className="max-w-2xl w-full mr-12 ml-auto bg-transparent"
               >
-                <motion.h1 
-                  className="text-6xl md:text-8xl lg:text-9xl font-serif font-semibold mb-8 leading-tight"
-                  style={{ 
-                    textShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                  }}
+                <h1
+                  id="hero-title"
+                  className="font-serif font-semibold mb-0 pb-2 leading-tight"
                 >
-                  <span className="block">
+                  <span id="hero-title-main" className="block">
                     {heroImages[currentSlide]?.title?.split(' ')[0] || "Crafting"}
                   </span>
-                  <span className="block text-primary-200 italic">
+                  <span id="hero-title-secondary" className="block italic">
                     {heroImages[currentSlide]?.title?.split(' ').slice(1).join(' ') || "Visual Excellence"}
                   </span>
-                </motion.h1>
-                
-                <motion.div 
+                </h1>
+                <motion.div
+                  id="hero-subtitle-motion"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 1, duration: 0.8 }}
                   className="mb-12"
                 >
-                  <div className="w-24 h-0.5 bg-primary-300 mx-auto mb-8"></div>
-                  <p className="text-xl md:text-2xl lg:text-3xl font-garamond font-light text-neutral-100 italic tracking-wide">
+                  <p id="hero-subtitle" className="font-garamond font-light text-neutral-100 italic tracking-wide">
                     {heroImages[currentSlide]?.subtitle || "Where artistry meets precision in every design"}
                   </p>
                 </motion.div>
-                
-                <motion.div 
-                  initial={{ y: 40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.4, duration: 0.8 }}
-                  className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-                >
-                  <Link 
+                <motion.div
+                    id="hero-cta-motion"
+                    initial={{ y: 40, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 1.4, duration: 0.8 }}
+                    className="flex flex-col sm:flex-row justify-center items-center mt-0 pt-0"
+                  >
+                  <Link
+                    id="hero-cta-explore"
                     to="/products"
-                    className="group bg-white text-primary-700 px-10 py-4 rounded-full text-lg font-medium hover:bg-primary-50 transition-all duration-300 transform hover:scale-105 shadow-elegant-lg font-sans tracking-elegant"
+                    className="group hero-cta-explore"
                   >
                     <span>Explore Collection</span>
                     <motion.span
+                      id="hero-cta-explore-arrow"
                       className="inline-block ml-2 group-hover:translate-x-1 transition-transform duration-300"
                     >
                       →
                     </motion.span>
                   </Link>
-                  
-                  <Link 
-                    to="/products?category=custom"
-                    className="group glass-elegant text-white px-10 py-4 rounded-full text-lg font-medium hover:bg-white/20 transition-all duration-300 transform hover:scale-105 font-sans tracking-elegant"
-                  >
-                    Commission Artwork
-                  </Link>
                 </motion.div>
 
                 {/* Elegant trust indicators */}
                 <motion.div
+                  id="hero-trust-motion"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 1.8, duration: 0.8 }}
                   className="mt-20 flex justify-center items-center space-x-12 text-white/80"
                 >
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      <CheckCircleIcon className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-light font-sans">Artisan Quality</span>
-                  </div>
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      <TruckIcon className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-light font-sans">Swift Delivery</span>
-                  </div>
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      <ShieldCheckIcon className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-light font-sans">Lifetime Value</span>
-                  </div>
                 </motion.div>
               </motion.div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
-
       {/* Elegant slide indicators */}
       {heroImages.length > 1 && (
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
@@ -607,7 +572,7 @@ const ProductCard = ({ product, onQuickView }) => {
             whileTap={{ scale: 0.95 }}
             onClick={handleAddToCart}
             disabled={isLoading}
-            className="bg-[#B3541E] text-white p-3 rounded-full hover:bg-[#9a4519] transition-colors shadow-lg disabled:opacity-50"
+            className="w-full add-to-cart-btn"
           >
             {isLoading ? (
               <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
@@ -760,7 +725,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                         onClick={() => setSelectedSize(size)}
                         className={`px-6 py-3 border-2 rounded-xl font-medium transition-all ${
                           selectedSize === size
-                            ? 'border-[#B3541E] bg-[#B3541E] text-white shadow-lg'
+                            ? 'border-[#B3541E] bg-white text-[#B3541E] shadow-lg'
                             : 'border-gray-300 hover:border-[#B3541E] hover:shadow-md'
                         }`}
                       >
@@ -781,7 +746,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                   >
                     <MinusIcon className="h-5 w-5" />
                   </button>
-                  <span className="text-2xl font-semibold w-16 text-center">{quantity}</span>
+                  <span className="w-12 text-center font-medium text-lg">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="p-3 border-2 border-gray-300 rounded-xl hover:border-[#B3541E] hover:bg-gray-50 transition-colors"
@@ -871,6 +836,7 @@ const HomePage = () => {
       setNewArrivals(response.data);
     } catch (error) {
       console.error('Failed to fetch new arrivals:', error);
+      setNewArrivals([]);
     }
   };
 
@@ -948,9 +914,9 @@ const HomePage = () => {
               
               <div className="space-y-6">
                 {[
-                  { icon: '🎨', title: 'Premium Quality Materials', desc: 'Only the finest materials for lasting beauty' },
-                  { icon: '🚀', title: 'Fast & Reliable Delivery', desc: 'Express shipping with tracking included' },
-                  { icon: '💡', title: 'Custom Design Support', desc: 'Professional design assistance available' }
+                  { title: 'Premium Quality Materials', desc: 'Only the finest materials for lasting beauty' },
+                  { title: 'Fast & Reliable Delivery', desc: 'Express shipping with tracking included' },
+                  { title: 'Custom Design Support', desc: 'Professional design assistance available' }
                 ].map((feature, index) => (
                   <motion.div
                     key={index}
@@ -995,7 +961,7 @@ const HomePage = () => {
               <div className="absolute -top-8 -right-8 bg-white rounded-2xl shadow-xl p-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-[#362222]">24/7</div>
-                  <div className="text-sm text-gray-600">Support</div>
+                  <div className="text-sm text-gray-600 font-medium">Support</div>
                 </div>
               </div>
             </motion.div>
@@ -1022,13 +988,6 @@ const HomePage = () => {
               <p className="text-gray-300 leading-relaxed">
                 Transforming ideas into beautiful printed products with passion, precision, and unmatched quality.
               </p>
-              <div className="flex space-x-4">
-                {['📧', '📞', '📍'].map((icon, index) => (
-                  <div key={index} className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-                    <span>{icon}</span>
-                  </div>
-                ))}
-              </div>
             </div>
             
             <div>
@@ -1061,15 +1020,12 @@ const HomePage = () => {
               <h3 className="font-semibold mb-6 text-lg">Contact Info</h3>
               <div className="space-y-4 text-gray-300">
                 <div className="flex items-center space-x-3">
-                  <span>📧</span>
                   <span>info@illustradesign.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>📞</span>
                   <span>+91 98765 43210</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>📍</span>
                   <span>Mumbai, India</span>
                 </div>
               </div>

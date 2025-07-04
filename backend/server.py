@@ -89,22 +89,29 @@ def upload_to_s3(file_content: bytes, filename: str, folder: str = "products") -
             Body=file_content,
             ContentType='image/jpeg'
         )
+        print(f"[S3 UPLOAD SUCCESS] {unique_filename}")
         return f"https://{os.environ['AWS_BUCKET_NAME']}.s3.{os.environ['AWS_REGION']}.amazonaws.com/{unique_filename}"
     except ClientError as e:
+        print(f"[S3 UPLOAD ERROR] {e}")
         # Fallback to local storage if S3 fails
         try:
             import base64
             encoded_image = base64.b64encode(file_content).decode('utf-8')
+            print("[FALLBACK] Returning base64 image string due to S3 error.")
             return f"data:image/jpeg;base64,{encoded_image}"
         except Exception as fallback_error:
+            print(f"[FALLBACK ERROR] {fallback_error}")
             raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
     except Exception as e:
+        print(f"[S3 UPLOAD GENERAL ERROR] {e}")
         # Fallback to local storage for any other errors
         try:
             import base64
             encoded_image = base64.b64encode(file_content).decode('utf-8')
+            print("[FALLBACK] Returning base64 image string due to general error.")
             return f"data:image/jpeg;base64,{encoded_image}"
         except Exception as fallback_error:
+            print(f"[FALLBACK ERROR] {fallback_error}")
             raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)} and fallback failed: {str(fallback_error)}")
 
 # Data Models
@@ -168,6 +175,7 @@ class ProductCreate(BaseModel):
     subcategory_id: Optional[str] = None
     price: float
     sizes: List[str] = []
+    images: List[str] = []  # <-- Add this line to accept images
     is_customizable: bool = False
     quantity: int = 0
 
@@ -347,6 +355,25 @@ async def delete_product(product_id: str, current_user: dict = Depends(get_curre
     if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
+    # Retrieve product to get image URLs
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Delete images from S3 if they are S3 URLs
+    for image_url in product.get("images", []):
+        try:
+            bucket = os.environ['AWS_BUCKET_NAME']
+            region = os.environ['AWS_REGION']
+            s3_prefix = f"https://{bucket}.s3.{region}.amazonaws.com/"
+            if image_url.startswith(s3_prefix):
+                key = image_url[len(s3_prefix):]
+                s3_client.delete_object(Bucket=bucket, Key=key)
+                print(f"[S3 DELETE SUCCESS] {key}")
+        except Exception as e:
+            print(f"[S3 DELETE ERROR] {e}")
+    
+    # Delete product from DB
     result = await db.products.delete_one({"id": product_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
