@@ -17,6 +17,7 @@ from jose import JWTError, jwt
 import json
 from PIL import Image
 import io
+import razorpay
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -43,6 +44,19 @@ JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
 # Create the main app
 app = FastAPI(title="IllustraDesign Studio API", version="1.0.0")
 api_router = APIRouter(prefix="/api")
+
+# CORS should be added before including any routers
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=[
+    "https://www.illustradesignstudio25.com",
+    "https://d2mfm7v4jqqonx.cloudfront.net",
+    "https://api.illustradesignstudio25.com"
+],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Utility functions
 def hash_password(password: str) -> str:
@@ -306,7 +320,7 @@ async def create_size(size: Size, current_user: dict = Depends(get_current_user)
 # Product endpoints
 @api_router.get("/products", response_model=List[Product])
 async def get_products(category_id: Optional[str] = None, subcategory_id: Optional[str] = None, 
-                      search: Optional[str] = None, skip: int = 0, limit: int = 20):
+                      search: Optional[str] = None, skip: int = 0, limit: Optional[int] = None):
     query = {}
     if category_id:
         query["category_id"] = category_id
@@ -317,8 +331,10 @@ async def get_products(category_id: Optional[str] = None, subcategory_id: Option
             {"title": {"$regex": search, "$options": "i"}},
             {"description": {"$regex": search, "$options": "i"}}
         ]
-    
-    products = await db.products.find(query).skip(skip).limit(limit).to_list(limit)
+    if limit is not None:
+        products = await db.products.find(query).skip(skip).limit(limit).to_list(limit)
+    else:
+        products = await db.products.find(query).skip(skip).to_list(10000)
     return [Product(**product) for product in products]
 
 @api_router.get("/products/{product_id}", response_model=Product)
@@ -430,10 +446,21 @@ async def add_product_image(product_id: str, file: UploadFile = File(...),
     return {"image_url": image_url, "message": "Image added to product"}
 
 # Cart endpoints
-@api_router.get("/cart", response_model=List[CartItem])
+@api_router.get("/cart")
 async def get_cart(current_user: dict = Depends(get_current_user)):
     cart_items = await db.cart_items.find({"user_id": current_user["id"]}).to_list(1000)
-    return [CartItem(**item) for item in cart_items]
+    result = []
+    for item in cart_items:
+        # Remove MongoDB _id field if present
+        item.pop("_id", None)
+        product = await db.products.find_one({"id": item["product_id"]})
+        if product:
+            item["product_title"] = product.get("title")
+            item["product_price"] = product.get("price")
+            images = product.get("images")
+            item["product_image"] = images[0] if images and len(images) > 0 else None
+        result.append(item)
+    return result
 
 @api_router.post("/cart", response_model=CartItem, status_code=201)
 async def add_to_cart(item: CartItem, current_user: dict = Depends(get_current_user)):
@@ -740,11 +767,11 @@ async def initialize_demo_data():
 async def create_razorpay_order(data: dict, current_user: dict = Depends(get_current_user)):
     import razorpay
     amount = data.get("amount")
-    if not amount:
-        raise HTTPException(status_code=400, detail="Amount is required")
+    if not amount or amount < 100:
+        raise HTTPException(status_code=400, detail="Invalid amount")
     try:
-        client = razorpay.Client(auth=(os.environ["RAZORPAY_KEY_ID"], os.environ["RAZORPAY_KEY_SECRET"]))
-        order = client.order.create({
+        razorpay_client = razorpay.Client(auth=(os.environ["RAZORPAY_KEY_ID"], os.environ["RAZORPAY_KEY_SECRET"]))
+        order = razorpay_client.order.create({
             "amount": int(amount),
             "currency": "INR",
             "payment_capture": 1
@@ -755,18 +782,10 @@ async def create_razorpay_order(data: dict, current_user: dict = Depends(get_cur
         }
     except Exception as e:
         print("[RAZORPAY ERROR]", e)
-        raise HTTPException(status_code=500, detail="Failed to create Razorpay order")
+        raise HTTPException(status_code=500, detail=f"Failed to create Razorpay order: {str(e)}")
 
-# Include the router in the main app
+# Then include the routes
 app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Configure logging
 logging.basicConfig(

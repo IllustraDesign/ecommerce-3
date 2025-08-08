@@ -202,7 +202,8 @@ const AppProvider = ({ children }) => {
     logout,
     addToCart,
     removeFromCart,
-    fetchCart
+    fetchCart,
+    updateCartItemQuantity
   };
 
   return (
@@ -1206,7 +1207,7 @@ const ProductsPage = () => {
 
 // Enhanced Cart Page
 const CartPage = () => {
-  const { cart, removeFromCart, fetchCart } = useAppContext();
+  const { cart, removeFromCart, fetchCart, updateCartItemQuantity } = useAppContext();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -1215,10 +1216,11 @@ const CartPage = () => {
   }, []);
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => {
-      return total + (599 * item.quantity); // Using default price for demo
-    }, 0);
-  };
+  return cart.reduce((total, item) => {
+    return total + (item.product_price * item.quantity);
+  }, 0);
+};
+
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -1243,7 +1245,7 @@ const CartPage = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl shadow-lg p-16 text-center"
+            className="bg-white rounded-3xl shadow-lg p-8 text-center"
           >
             <div className="text-8xl mb-6">🛒</div>
             <h2 className="text-3xl font-semibold mb-4">Your cart is empty</h2>
@@ -1269,26 +1271,34 @@ const CartPage = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center space-x-6 p-6 border border-gray-100 rounded-2xl hover:shadow-md transition-shadow"
+                      className="flex flex-col sm:flex-row items-center sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 p-3 sm:p-6 border border-gray-100 rounded-2xl hover:shadow-md transition-shadow w-full"
+                      style={{ minWidth: 0, maxWidth: '100%' }} // <-- add maxWidth
                     >
                       <img
-                        src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
-                        alt="Product"
-                        className="w-24 h-24 object-cover rounded-xl"
+                        src={item.product_image || "/default.jpg"}
+                        alt={item.product_title}
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 text-lg">Custom Product</h3>
-                        <p className="text-gray-600">Size: {item.size || 'M'}</p>
-                        <p className="text-[#B3541E] font-semibold text-lg">₹599</p>
+                      <div className="flex-1 min-w-0 text-center sm:text-left">
+                        <h3 className="font-semibold text-gray-800 text-base sm:text-lg line-clamp-2">{item.product_title || "Custom Product"}</h3>
+                        <p className="text-gray-600 text-sm break-words">Size: {item.size || 'M'}</p>
+                        <p className="text-[#B3541E] font-semibold text-base sm:text-lg">₹{item.product_price}</p>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                          <MinusIcon className="h-4 w-4" />
-                        </button>
-                        <span className="w-12 text-center font-medium text-lg">{item.quantity}</span>
-                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                          <PlusIcon className="h-4 w-4" />
-                        </button>
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                         <button
+                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={() => updateCartItemQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            disabled={item.quantity <= 1}
+                          >
+                            <MinusIcon className="h-4 w-4" />
+                          </button>
+                          <span className="w-8 text-center font-medium text-base sm:text-lg">{item.quantity}</span>
+                          <button
+                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
+                          >
+                            <PlusIcon className="h-4 w-4" />
+                          </button>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.id)}
@@ -1303,11 +1313,12 @@ const CartPage = () => {
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 w-full">
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white rounded-3xl shadow-lg p-8 sticky top-8"
+                className="bg-white rounded-3xl shadow-lg p-4 sm:p-8 sticky top-8 w-full min-w-0"
+                style={{ minWidth: 0 }}
               >
                 <h2 className="text-2xl font-semibold mb-8">Order Summary</h2>
                 <div className="space-y-6">
@@ -1405,12 +1416,12 @@ const CheckoutPage = () => {
     }
   };
 
-  const getTotalPrice = () => {
+    const getTotalPrice = () => {
     return cart.reduce((total, item) => {
-      const product = products.find(p => p.id === item.product_id);
-      return total + ((product?.price || 599) * item.quantity);
+      return total + (item.product_price * item.quantity);
     }, 0);
   };
+
 
   const handleCustomImageUpload = (cartItemId, file) => {
     if (file) {
@@ -1516,6 +1527,7 @@ const CheckoutPage = () => {
                 color: '#fff',
               },
             });
+            // Redirect to profile page after successful payment
             navigate('/profile');
           } catch (error) {
             toast.error('Order creation failed after payment. Please contact support.');
@@ -2200,6 +2212,21 @@ const RegisterPage = () => {
       </motion.div>
     </div>
   );
+};
+
+const updateCartItemQuantity = async (itemId, newQuantity) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    await axios.put(
+        `${API}/cart/${itemId}?quantity=${newQuantity}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    await fetchCart();
+  } catch (error) {
+    toast.error('Failed to update quantity');
+  }
 };
 
 // Admin Wrapper Component
