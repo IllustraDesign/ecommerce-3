@@ -202,7 +202,8 @@ const AppProvider = ({ children }) => {
     logout,
     addToCart,
     removeFromCart,
-    fetchCart
+    fetchCart,
+    updateCartItemQuantity
   };
 
   return (
@@ -767,8 +768,8 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                      <span>Adding to Cart...</span>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Adding...</span>
                     </div>
                   ) : (
                     'Add to Cart'
@@ -1020,13 +1021,13 @@ const HomePage = () => {
               <h3 className="font-semibold mb-6 text-lg">Contact Info</h3>
               <div className="space-y-4 text-gray-300">
                 <div className="flex items-center space-x-3">
-                  <span>info@illustradesign.com</span>
+                  <span>illustradesignstudio25@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>+91 98765 43210</span>
+                  <span>+91 89518 29727</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span>Mumbai, India</span>
+                  <span>Bengaluru, Karnataka</span>
                 </div>
               </div>
             </div>
@@ -1206,7 +1207,7 @@ const ProductsPage = () => {
 
 // Enhanced Cart Page
 const CartPage = () => {
-  const { cart, removeFromCart, fetchCart } = useAppContext();
+  const { cart, removeFromCart, fetchCart, updateCartItemQuantity } = useAppContext();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -1215,10 +1216,11 @@ const CartPage = () => {
   }, []);
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => {
-      return total + (599 * item.quantity); // Using default price for demo
-    }, 0);
-  };
+  return cart.reduce((total, item) => {
+    return total + (item.product_price * item.quantity);
+  }, 0);
+};
+
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -1243,10 +1245,10 @@ const CartPage = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl shadow-lg p-16 text-center"
+            className="bg-white rounded-3xl shadow-lg p-8 text-center"
           >
             <div className="text-8xl mb-6">🛒</div>
-            <h2 className="text-3xl font-semibold text-gray-600 mb-4">Your cart is empty</h2>
+            <h2 className="text-3xl font-semibold mb-4">Your cart is empty</h2>
             <p className="text-gray-500 mb-8 text-lg">Discover our amazing products and add them to your cart!</p>
             <Link
               to="/products"
@@ -1269,26 +1271,34 @@ const CartPage = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center space-x-6 p-6 border border-gray-100 rounded-2xl hover:shadow-md transition-shadow"
+                      className="flex flex-col sm:flex-row items-center sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 p-3 sm:p-6 border border-gray-100 rounded-2xl hover:shadow-md transition-shadow w-full"
+                      style={{ minWidth: 0, maxWidth: '100%' }} // <-- add maxWidth
                     >
                       <img
-                        src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
-                        alt="Product"
-                        className="w-24 h-24 object-cover rounded-xl"
+                        src={item.product_image || "/default.jpg"}
+                        alt={item.product_title}
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 text-lg">Custom Product</h3>
-                        <p className="text-gray-600">Size: {item.size || 'M'}</p>
-                        <p className="text-[#B3541E] font-semibold text-lg">₹599</p>
+                      <div className="flex-1 min-w-0 text-center sm:text-left">
+                        <h3 className="font-semibold text-gray-800 text-base sm:text-lg line-clamp-2">{item.product_title || "Custom Product"}</h3>
+                        <p className="text-gray-600 text-sm break-words">Size: {item.size || 'M'}</p>
+                        <p className="text-[#B3541E] font-semibold text-base sm:text-lg">₹{item.product_price}</p>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                          <MinusIcon className="h-4 w-4" />
-                        </button>
-                        <span className="w-12 text-center font-medium text-lg">{item.quantity}</span>
-                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                          <PlusIcon className="h-4 w-4" />
-                        </button>
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                         <button
+                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={() => updateCartItemQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            disabled={item.quantity <= 1}
+                          >
+                            <MinusIcon className="h-4 w-4" />
+                          </button>
+                          <span className="w-8 text-center font-medium text-base sm:text-lg">{item.quantity}</span>
+                          <button
+                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
+                          >
+                            <PlusIcon className="h-4 w-4" />
+                          </button>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.id)}
@@ -1303,11 +1313,12 @@ const CartPage = () => {
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 w-full">
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white rounded-3xl shadow-lg p-8 sticky top-8"
+                className="bg-white rounded-3xl shadow-lg p-4 sm:p-8 sticky top-8 w-full min-w-0"
+                style={{ minWidth: 0 }}
               >
                 <h2 className="text-2xl font-semibold mb-8">Order Summary</h2>
                 <div className="space-y-6">
@@ -1379,6 +1390,16 @@ const CheckoutPage = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const navigate = useNavigate();
 
+  // Razorpay script loader
+  useEffect(() => {
+    if (!window.Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProductDetails();
   }, [cart]);
@@ -1395,12 +1416,12 @@ const CheckoutPage = () => {
     }
   };
 
-  const getTotalPrice = () => {
+    const getTotalPrice = () => {
     return cart.reduce((total, item) => {
-      const product = products.find(p => p.id === item.product_id);
-      return total + ((product?.price || 599) * item.quantity);
+      return total + (item.product_price * item.quantity);
     }, 0);
   };
+
 
   const handleCustomImageUpload = (cartItemId, file) => {
     if (file) {
@@ -1454,15 +1475,13 @@ const CheckoutPage = () => {
     return await Promise.all(uploadPromises);
   };
 
-  const handleSubmit = async (e) => {
+  const handleRazorpayPayment = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
     setUploadingImages(true);
-
     try {
       // Upload custom images first
       const uploadedImages = await uploadCustomImagesToServer();
-      
       // Update cart items with custom image URLs
       const updatedCartItems = cart.map(item => {
         const customImage = uploadedImages.find(img => img.cartItemId === item.id);
@@ -1471,28 +1490,61 @@ const CheckoutPage = () => {
           custom_image_url: customImage?.imageUrl || null
         };
       });
-
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API}/orders`, {
-        billing_address: formData.billingAddress,
-        phone: formData.phone,
-        custom_items: updatedCartItems
+      // 1. Create Razorpay order on backend
+      const orderAmount = getTotalPrice() + Math.round(getTotalPrice() * 0.18); // include tax
+      const razorpayOrderRes = await axios.post(`${API}/create-razorpay-order`, {
+        amount: orderAmount * 100 // in paise
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      toast.success('Order placed successfully! 🎉', {
-        style: {
-          borderRadius: '12px',
-          background: '#10b981',
-          color: '#fff',
+      const { order_id, razorpay_key } = razorpayOrderRes.data;
+      // 2. Open Razorpay modal
+      const options = {
+        key: razorpay_key,
+        amount: orderAmount * 100,
+        currency: 'INR',
+        name: 'IllustraDesign Studio',
+        description: 'Order Payment',
+        order_id: order_id,
+        handler: async function (response) {
+          // 3. On payment success, create order in backend
+          try {
+            await axios.post(`${API}/orders`, {
+              billing_address: formData.billingAddress,
+              phone: formData.phone,
+              custom_items: updatedCartItems,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Order placed successfully! 🎉', {
+              style: {
+                borderRadius: '12px',
+                background: '#10b981',
+                color: '#fff',
+              },
+            });
+            // Redirect to profile page after successful payment
+            navigate('/profile');
+          } catch (error) {
+            toast.error('Order creation failed after payment. Please contact support.');
+          }
         },
-      });
-
-      navigate('/profile');
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: formData.phone
+        },
+        theme: { color: '#B3541E' }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      toast.error('Failed to place order. Please try again.');
-      console.error('Checkout error:', error);
+      toast.error('Payment initiation failed. Please try again.');
+      console.error('Razorpay error:', error);
     } finally {
       setIsProcessing(false);
       setUploadingImages(false);
@@ -1536,7 +1588,7 @@ const CheckoutPage = () => {
           Checkout
         </motion.h1>
 
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+        <form onSubmit={handleRazorpayPayment} className="grid lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-8">
             {/* Billing Information */}
@@ -2160,6 +2212,21 @@ const RegisterPage = () => {
       </motion.div>
     </div>
   );
+};
+
+const updateCartItemQuantity = async (itemId, newQuantity) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    await axios.put(
+        `${API}/cart/${itemId}?quantity=${newQuantity}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    await fetchCart();
+  } catch (error) {
+    toast.error('Failed to update quantity');
+  }
 };
 
 // Admin Wrapper Component
